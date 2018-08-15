@@ -1,5 +1,5 @@
 import React from "react";
-import { GraphType } from "./types";
+import { GraphType } from "../types";
 
 // GUI Layer containing the visual graph representation
 // of the workflow.

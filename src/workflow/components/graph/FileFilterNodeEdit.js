@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FileFilterType } from "./types";
+import { FileFilterType } from "../types";
 
 const FilterNodeEdit = undefined;
 
