@@ -7,7 +7,7 @@ import { LineType } from "./types";
 const LineDragLayer = undefined;
 
 LineDragLayer.propTypes = {
-  drags: PropTypes.arrayOf(LineType),
+  drag: LineType,
   onDragStart: PropTypes.func,
   onDragEnd: PropTypes.func
 };
