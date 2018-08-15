@@ -5,9 +5,9 @@ import type {
   Point,
   Line,
   NodeID,
-  NodeParams,
+  GraphNode,
   ConnectionID,
-  ConnectionParams,
+  Connection,
   Graph
 } from "./types";
 
@@ -20,28 +20,28 @@ const EMPTY_GRAPH: Graph = {
 export const graphStream = (
   initialGraph: Graph = EMPTY_GRAPH,
   updates: {
-    addNode$: Stream<NodeParams>,
+    addNode$: Stream<GraphNode>,
     removeNode$: Stream<NodeID>,
-    editNode$: Stream<{ id: NodeID, edit: NodeParams }>,
-    addConnection$: Stream<ConnectionParams>,
+    editNode$: Stream<{ id: NodeID, edit: GraphNode }>,
+    addConnection$: Stream<Connection>,
     removeConnection$: Stream<ConnectionID>
   }
-): Stream<Graph> => {
+): { graph$: Stream<Graph> } => {
   const graph$ = most.of(initialGraph);
-  return graph$;
+  return { graph$ };
 };
 
 export const editConnections = (
   graph$: Stream<Graph>,
   udpates: {
     startConnectionOutput$: Stream<{ parentID: NodeID, outputIndex: number }>,
-    endConnectionInput$: Stream<{ nodeID: NodeID, inputIndex: number }>,
-    startConnectionInput$: Stream<{ nodeID: NodeID, inputIndex: number }>,
+    endConnectionInput$: Stream<{ childID: NodeID, inputIndex: number }>,
+    startConnectionInput$: Stream<{ childID: NodeID, inputIndex: number }>,
     endConnectionOutput$: Stream<{ parentID: NodeID, outputIndex: number }>,
     continueConnection$: Stream<Point>
   }
 ): {
-  addConnection$: Stream<ConnectionParams>,
+  addConnection$: Stream<Connection>,
   removeConnection$: Stream<ConnectionID>,
   drag$: Stream<Line | null>
 } => {
@@ -49,4 +49,18 @@ export const editConnections = (
   const removeConnection$ = most.empty();
   const drag$ = most.empty();
   return { addConnection$, removeConnection$, drag$ };
+};
+
+export const moveNodes = (
+  graph$: Stream<Graph>,
+  udpates: {
+    startMove$: Stream<NodeID>,
+    endMove$: Stream<any>,
+    continueMove: Stream<Point>
+  }
+): {
+  editNode$: Stream<{ id: NodeID, edit: GraphNode }>
+} => {
+  const editNode$ = most.empty();
+  return { editNode$ };
 };
