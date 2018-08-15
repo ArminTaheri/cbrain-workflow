@@ -54,23 +54,26 @@ export const NODE_TYPE = {
   INPUT_TRANSFORM_NODE: "INPUT_TRANSFORM_NODE"
 };
 
+export const NodeOptionType = PropTypes.oneOf([
+  NODE_TYPE.SOURCE,
+  NODE_TYPE.FILE_FILTER,
+  NODE_TYPE.TASK
+]);
+
+export const NodeIDType = PropTypes.string;
+
 export const NodeType = PropTypes.shape({
-  id: PropTypes.string,
   position: PointType,
-  type: PropTypes.oneOf([
-    NODE_TYPE.SOURCE,
-    NODE_TYPE.FILE_FILTER,
-    NODE_TYPE.TASK
-  ]),
+  type: NodeOptionType,
   content: PropTypes.oneOfType([FileSourceType, FileFilterType, TaskType])
 });
 
+export const ConnectionIDType = PropTypes.string;
+
 export const ConnectionType = PropTypes.shape({
-  // Neighbour id
-  nodeId: PropTypes.string,
-  // Neighbour input index
+  parentID: NodeIDType,
+  childID: NodeIDType,
   inputIndex: PropTypes.number,
-  // Parent output index
   outputIndex: PropTypes.number
 });
 
@@ -82,13 +85,8 @@ export const GraphType = PropTypes.shape({
     NodeType
   ),
   edges: PropTypes.objectOf(
-    /* Keys should be an existing ID in the nodes map.
-     * Values are lists of index triples of (
-     *   neighbour node,
-     *   neighbour's input,
-     *   this node's output
-     * ).
-     */
-    PropTypes.arrayOf(ConnectionType)
+    // Keys should be a connection ID
+    // Values should be a ConnectionType
+    ConnectionType
   )
 });

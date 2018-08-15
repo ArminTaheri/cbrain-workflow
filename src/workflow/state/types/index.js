@@ -3,10 +3,9 @@ export type Point = { x: number, y: number };
 export type Line = { start: Point, end: Point };
 
 export type FileID = string;
-export type FileInfoParams = { name: string };
-export type FileInfo = { id: FileID } & FileInfoParams;
+export type FileInfo = { name: string };
 
-export type FileSource = { query: (params: {}) => Array<FileInfo> };
+export type FileSource = { query: (params: {}) => { [FileID]: FileInfo } };
 
 export type FileFilter = { selection: Array<FileInfo> };
 
@@ -29,20 +28,24 @@ export type Task = {
   groups: Array<TaskInputGroup>
 };
 
-export type ContentTypes = FileSource | FileFilter | Task;
-
 export type NodeID = String;
-export type NodeParams = {
+export type Node<N> = {
   position: Point,
-  content: ContentTypes
+  content: N
 };
-export type Node = { id: NodeID } & NodeParams;
-export type ConnectionID = String;
-export type ConnectionParams = {};
-export type Connection = { id: ConnectionID } & ConnectionParams;
+
+export type GraphNode = Node<FileSource> | Node<FileFilter> | Node<Task>;
+
+export type ConnectionID = string;
+export type Connection = {
+  parentID: NodeID,
+  childID: NodeID,
+  inputIndex: number,
+  outputIndex: number
+};
 
 export type Graph = {
   name: string,
-  nodes: { [NodeID]: Node },
+  nodes: { [NodeID]: GraphNode },
   edges: { [ConnectionID]: Connection }
 };
