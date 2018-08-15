@@ -4,12 +4,12 @@ import { LineType } from "./types";
 
 // GUI Layer containing the dragging edges
 // while the user interacts with the workflow.
-const DragLayer = undefined;
+const LineDragLayer = undefined;
 
-DragLayer.propTypes = {
+LineDragLayer.propTypes = {
   drags: PropTypes.arrayOf(LineType),
   onDragStart: PropTypes.func,
   onDragEnd: PropTypes.func
 };
 
-export default DragLayer;
+export default LineDragLayer;
