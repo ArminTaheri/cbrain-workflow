@@ -11,11 +11,13 @@ import type {
   Graph
 } from "./types";
 
-const EMPTY_GRAPH: Graph = {
-  name: "",
+export const EMPTY_GRAPH: Graph = {
+  name: "New Workflow",
   nodes: {},
   edges: {}
 };
+
+export const makeNodeID = (graph: Graph): NodeID => "0";
 
 export const graphStream = (
   initialGraph: Graph = EMPTY_GRAPH,
@@ -34,10 +36,26 @@ export const graphStream = (
 export const editConnections = (
   graph$: Stream<Graph>,
   udpates: {
-    startConnectionOutput$: Stream<{ parentID: NodeID, outputIndex: number }>,
-    endConnectionInput$: Stream<{ childID: NodeID, inputIndex: number }>,
-    startConnectionInput$: Stream<{ childID: NodeID, inputIndex: number }>,
-    endConnectionOutput$: Stream<{ parentID: NodeID, outputIndex: number }>,
+    startConnectionOutput$: Stream<{
+      parentID: NodeID,
+      outputIndex: number,
+      offset: Point
+    }>,
+    endConnectionInput$: Stream<{
+      childID: NodeID,
+      inputIndex: number,
+      offset: Point
+    }>,
+    startConnectionInput$: Stream<{
+      childID: NodeID,
+      inputIndex: number,
+      offset: Point
+    }>,
+    endConnectionOutput$: Stream<{
+      parentID: NodeID,
+      outputIndex: number,
+      offset: Point
+    }>,
     continueConnection$: Stream<Point>
   }
 ): {
