@@ -1,21 +1,21 @@
 // @flow
 import { Stream } from "most";
+import * as most from "most";
 
 import type {
   Point,
-  FileID,
-  FileInfo,
   FileSource,
   FileSourceNode,
   FileFilter,
   FileFilterNode,
+  GraphNode,
   Graph
 } from "./types";
 
 export const makeFileSourceNode = (
   graph: Graph,
-  source: FileSource,
-  position: Point
+  position: Point,
+  source: FileSource
 ): FileSourceNode => ({
   position,
   type: "FILE_SOURCE",
@@ -26,8 +26,8 @@ export const makeFileSourceNode = (
 
 export const makeFileFilterNode = (
   graph: Graph,
-  filter: FileFilter,
-  position: Point
+  position: Point,
+  filter: FileFilter = { selection: [] }
 ): FileFilterNode => ({
   position,
   type: "FILE_FILTER",
@@ -35,3 +35,11 @@ export const makeFileFilterNode = (
   inputSize: 1,
   outputSize: 1
 });
+
+export const placeFileFilterNodes = (
+  graph$: Stream<Graph>,
+  placeNode$: Stream<{ position: Position, filter: ?FileFilter }>
+): { addNode$: Stream<GraphNode> } => {
+  const addNode$ = most.empty();
+  return { addNode$ };
+};

@@ -1,7 +1,8 @@
 // @flow
 import { Stream } from "most";
+import * as most from "most";
 
-import type { Point, Task, TaskNode, Graph } from "./types";
+import type { Point, Task, TaskNode, GraphNode, Graph } from "./types";
 
 export const makeTaskNode = (
   graph: Graph,
@@ -14,3 +15,11 @@ export const makeTaskNode = (
   inputSize: task.inputs.length,
   outputSize: task.inputs.length
 });
+
+export const placeTaskNodes = (
+  graph$: Stream<Graph>,
+  placeNode$: Stream<{ position: Position, task: ?Task }>
+): { addNode$: Stream<GraphNode> } => {
+  const addNode$ = most.empty();
+  return { addNode$ };
+};
