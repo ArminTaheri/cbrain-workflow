@@ -1,25 +1,35 @@
-// @flow
-import { Stream } from "most";
-import * as most from "most";
+import * as R from "ramda";
+import * as Rx from "rxjs/operators";
+import { ofType } from "redux-observable";
+import { createAction } from "redux-actions";
+import { addNode } from "./graph";
+import { NODE_TYPE } from "../components/types";
 
-import type { Point, Task, TaskNode, GraphNode, Graph } from "./types";
+export const makeTaskNode = ({ position, task }) => {
+  const { inputs, outputs } = task;
+  return {
+    position,
+    type: NODE_TYPE.TASK,
+    content: task,
+    inputs: inputs.map(({ name }) => ({ name })),
+    outputs: outputs.map(({ name }) => ({ name }))
+  };
+};
 
-export const makeTaskNode = (
-  graph: Graph,
-  task: Task,
-  position: Point
-): TaskNode => ({
-  position,
-  type: "TASK",
-  content: task,
-  inputSize: task.inputs.length,
-  outputSize: task.inputs.length
-});
+export const PLACE_TASK_NODE = "PLACE_TASK_NODE";
+export const placeTaskNode = createAction(PLACE_TASK_NODE);
 
-export const placeTaskNodes = (
-  graph$: Stream<Graph>,
-  placeNode$: Stream<{ position: Position, task: ?Task }>
-): { addNode$: Stream<GraphNode> } => {
-  const addNode$ = most.empty();
-  return { addNode$ };
+export const placeTaskNodeEpic = actions$ => {
+  const addNode$ = actions$.pipe(
+    ofType(PLACE_TASK_NODE),
+    Rx.filter(R.has("payload")),
+    Rx.map(
+      R.pipe(
+        R.prop("payload"),
+        makeTaskNode,
+        addNode
+      )
+    )
+  );
+  return addNode$;
 };

@@ -1,18 +1,30 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import { createStore, applyMiddleware } from "redux";
+import { Provider } from "react-redux";
+import { createLogger } from "redux-logger";
+import { createEpicMiddleware } from "redux-observable";
+import { rootReducer, rootEpic } from "./workflow/state";
+import Workflow from "./workflow/components/Workflow";
+import "./App.css";
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    const epicMiddleware = createEpicMiddleware();
+    const logger = createLogger();
+
+    this.store = createStore(
+      rootReducer,
+      applyMiddleware(epicMiddleware, logger)
+    );
+    epicMiddleware.run(rootEpic);
+  }
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        <Provider store={this.store}>
+          <Workflow />
+        </Provider>
       </div>
     );
   }

@@ -24,27 +24,27 @@ export const FileFilterType = PropTypes.shape({
   selection: PropTypes.arrayOf(FileInfoType)
 });
 
-export const InputType = PropTypes.shape({
+export const TaskInputType = PropTypes.shape({
   // Add relevant keys from boutiques schema for inputs
 });
 
-export const OutputType = PropTypes.shape({
+export const TaskOutputType = PropTypes.shape({
   // Add relevant keys from boutiques schema for outputs
 });
 
-export const InputGroup = PropTypes.shape({
+export const TaskInputGroup = PropTypes.shape({
   // Add relevant keys from boutiques schema for input groups
 });
 
 export const TaskType = PropTypes.shape({
   name: PropTypes.string,
-  inputs: PropTypes.arrayOf(InputType),
-  outputs: PropTypes.arrayOf(OutputType),
-  groups: PropTypes.arrayOf(InputGroup)
+  inputs: PropTypes.arrayOf(TaskInputType),
+  outputs: PropTypes.arrayOf(TaskOutputType),
+  groups: PropTypes.arrayOf(TaskInputGroup)
 });
 
 export const NODE_TYPE = {
-  SOURCE: "FILE_SOURCE",
+  FILE_SOURCE: "FILE_SOURCE",
   FILE_FILTER: "FILE_FILTER",
   TASK: "TASK",
   // To be implemented in phase 2:
@@ -62,19 +62,33 @@ export const NodeOptionType = PropTypes.oneOf([
 
 export const NodeIDType = PropTypes.string;
 
+export const NodeInputType = PropTypes.shape({
+  name: PropTypes.string
+});
+
+export const NodeOutputType = PropTypes.shape({
+  name: PropTypes.string
+});
+
 export const NodeType = PropTypes.shape({
+  id: NodeIDType,
   position: PointType,
   type: NodeOptionType,
-  content: PropTypes.oneOfType([FileSourceType, FileFilterType, TaskType])
+  content: PropTypes.oneOfType([FileSourceType, FileFilterType, TaskType]),
+  inputs: PropTypes.arrayOf(NodeInputType),
+  outputs: PropTypes.arrayOf(NodeOutputType)
 });
 
 export const ConnectionIDType = PropTypes.string;
 
 export const ConnectionType = PropTypes.shape({
+  id: ConnectionIDType,
   parentID: NodeIDType,
   childID: NodeIDType,
   inputIndex: PropTypes.number,
-  outputIndex: PropTypes.number
+  inputOffset: PointType,
+  outputIndex: PropTypes.number,
+  outputOffset: PointType
 });
 
 export const GraphType = PropTypes.shape({
@@ -84,7 +98,7 @@ export const GraphType = PropTypes.shape({
     // Values should be a NodeType.
     NodeType
   ),
-  edges: PropTypes.objectOf(
+  connections: PropTypes.objectOf(
     // Keys should be a connection ID
     // Values should be a ConnectionType
     ConnectionType
