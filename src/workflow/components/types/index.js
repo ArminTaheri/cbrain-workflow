@@ -86,9 +86,7 @@ export const ConnectionType = PropTypes.shape({
   parentID: NodeIDType,
   childID: NodeIDType,
   inputIndex: PropTypes.number,
-  inputOffset: PointType,
-  outputIndex: PropTypes.number,
-  outputOffset: PointType
+  outputIndex: PropTypes.number
 });
 
 export const GraphType = PropTypes.shape({

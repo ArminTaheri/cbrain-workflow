@@ -3,8 +3,10 @@ import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import { createLogger } from "redux-logger";
 import { createEpicMiddleware } from "redux-observable";
+import "resize-observer-polyfill/dist/ResizeObserver.global";
 import { rootReducer, rootEpic } from "./workflow/state";
 import Workflow from "./workflow/components/Workflow";
+import "./css/bootstrap.min.css";
 import "./App.css";
 
 class App extends Component {

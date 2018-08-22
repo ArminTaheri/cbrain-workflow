@@ -3,11 +3,10 @@ import PropTypes from "prop-types";
 import { LineType } from "../types";
 
 // Sidebar component for working with a single nodes.
-const Edge = undefined;
+const Edge = ({ edge }) => null;
 
 Edge.propTypes = {
-  edge: LineType.isRequired,
-  onSelect: PropTypes.func
+  edge: LineType.isRequired
 };
 
 export default Edge;
