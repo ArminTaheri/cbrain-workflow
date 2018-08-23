@@ -5,6 +5,7 @@ import { createLogger } from "redux-logger";
 import { createEpicMiddleware } from "redux-observable";
 import "resize-observer-polyfill/dist/ResizeObserver.global";
 import { rootReducer, rootEpic } from "./workflow/state";
+import { placeFileSourceNode } from "./workflow/state/file";
 import Workflow from "./workflow/components/Workflow";
 import "./css/bootstrap.min.css";
 import "./App.css";
@@ -19,7 +20,12 @@ class App extends Component {
       rootReducer,
       applyMiddleware(epicMiddleware, logger)
     );
+
     epicMiddleware.run(rootEpic);
+
+    this.store.dispatch(
+      placeFileSourceNode({ position: { x: 0.5, y: 0.1 }, source: {} })
+    );
   }
   render() {
     return (

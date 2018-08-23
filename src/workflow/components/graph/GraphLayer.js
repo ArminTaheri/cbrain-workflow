@@ -3,109 +3,61 @@ import React from "react";
 import { Group } from "@vx/vx";
 import { scaleLinear } from "d3-scale";
 import withResizeObserverProps from "@hocs/with-resize-observer-props";
-import { NODE_TYPE, GraphType } from "../types";
-import Edge from "./Edge";
-import FileSourceNode from "./FileSourceNode";
-import FileFilterNode from "./FileFilterNode";
-import TaskNode from "./TaskNode";
-
-const GraphNode = ({ node, onMouseDown }) => {
-  const renderOverlay = ({ width, height }) => (
-    <rect
-      style={{ strokOpacity: "0", fillOpacity: "0" }}
-      width={width}
-      height={height}
-      onMouseDown={onMouseDown}
-    />
-  );
-  const { type, position, content } = node;
-  switch (type) {
-    case NODE_TYPE.FILE_SOURCE: {
-      return (
-        <FileSourceNode
-          renderOverlay={renderOverlay}
-          position={position}
-          source={content}
-        />
-      );
-    }
-    case NODE_TYPE.FILE_FILTER: {
-      return (
-        <FileFilterNode
-          renderOverlay={renderOverlay}
-          position={position}
-          filter={content}
-        />
-      );
-    }
-    case NODE_TYPE.TASK: {
-      return (
-        <TaskNode
-          renderOverlay={renderOverlay}
-          position={position}
-          task={content}
-        />
-      );
-    }
-    default: {
-      return null;
-    }
-  }
-};
-
-const GraphConnection = ({
-  xScale,
-  yScale,
-  parent,
-  child,
-  inputIndex,
-  outputIndex
-}) => <Group />;
+import { GraphType } from "../types";
+import DEFAULT_STYLE from "../style";
+import GraphNode from "./GraphNode";
+import GraphConnection from "./GraphConnection";
 
 // GUI Layer containing the visual graph representation
 // of the workflow.
 const GraphLayer = ({
   graph,
-  graphPointerDown,
-  graphPointerMove,
-  graphPointerUp,
-  nodePointerDown,
-  pinPointerDown,
+  graphPointerDown = R.identity,
+  graphPointerMove = R.identity,
+  graphPointerUp = R.identity,
+  nodePointerDown = R.identity,
+  inPinPointerDown = R.identity,
+  outPinPointerDown = R.identity,
   width = 400,
   height = 300,
   onRef
 }) => {
+  const scaleX = scaleLinear()
+    .domain(DEFAULT_STYLE.graphDomain.x)
+    .range([0, width]);
+  const scaleY = scaleLinear()
+    .domain(DEFAULT_STYLE.graphDomain.y)
+    .range([0, height]);
+  const nodes = R.values(graph.nodes);
+  const connections = R.values(graph.connections);
   return (
-    <div ref={onRef} style={{ height: "100%" }}>
+    <div
+      ref={onRef}
+      style={{ height: "100%" }}
+      onMouseDown={graphPointerDown}
+      onMouseUp={graphPointerUp}
+      onMouseMove={graphPointerMove}
+    >
       <svg width={width} height={height - 5}>
         <Group>
-          {R.values(graph.nodes).map(node => (
+          {nodes.map((node, i) => (
             <GraphNode
+              key={`${i}-${nodes.length}`}
+              scaleX={scaleX}
+              scaleY={scaleY}
               node={node}
-              nodePointerDown={nodePointerDown}
-              pinPointerDown={pinPointerDown}
+              nodePointerDown={() => nodePointerDown(node)}
+              inPinPointerDown={inPinPointerDown}
+              outPinPointerDown={outPinPointerDown}
             />
           ))}
-          {R.values(graph.connections).map(
-            ({ parentID, childID, inputIndex, outputIndex }) => (
-              <GraphConnection
-                parent={graph.nodes[parentID]}
-                child={graph.nodes[childID]}
-                inputIndex={inputIndex}
-                outputIndex={outputIndex}
-              />
-            )
-          )}
-        </Group>
-        <Group>
-          <rect
-            style={{ fillOpacity: "0", strokOpacity: "0" }}
-            width={width}
-            height={height}
-            onMouseDown={graphPointerDown}
-            onMouseUp={graphPointerUp}
-            onMouseMove={graphPointerMove}
-          />
+          {connections.map((connection, i) => (
+            <GraphConnection
+              key={`${i}-${connections.length}`}
+              graph={graph}
+              connection={connection}
+            />
+          ))}
         </Group>
       </svg>
     </div>

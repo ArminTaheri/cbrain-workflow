@@ -55,7 +55,7 @@ export const NODE_TYPE = {
 };
 
 export const NodeOptionType = PropTypes.oneOf([
-  NODE_TYPE.SOURCE,
+  NODE_TYPE.FILE_SOURCE,
   NODE_TYPE.FILE_FILTER,
   NODE_TYPE.TASK
 ]);
