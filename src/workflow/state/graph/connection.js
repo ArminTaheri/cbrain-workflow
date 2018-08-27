@@ -59,7 +59,7 @@ export const makeConnectionEpic = (actions$, state$) => {
     Rx.map(
       R.pipe(
         R.prop("payload"),
-        extractChildParams
+        R.unless(R.isNil, extractChildParams)
       )
     )
   );
@@ -92,13 +92,22 @@ export const makeConnectionEpic = (actions$, state$) => {
   );
   const addConnectionO2I$ = startConnectionOutput$.pipe(
     Rx.combineLatest(endConnectionInput$),
-    Rx.map(([start, end]) =>
-      makeConnection({
+    Rx.map(([start, end]) => {
+      if (!end) {
+        return null;
+      }
+      return makeConnection({
         parentID: start.parentID,
         outputIndex: start.outputIndex,
         childID: end.childID,
         inputIndex: end.inputIndex
-      })
+      });
+    }),
+    Rx.filter(
+      R.compose(
+        R.not,
+        R.isNil
+      )
     )
   );
   // const addConnectionI2O$ = of();

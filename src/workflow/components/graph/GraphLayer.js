@@ -5,6 +5,7 @@ import { scaleLinear } from "d3-scale";
 import withResizeObserverProps from "@hocs/with-resize-observer-props";
 import { GraphType } from "../types";
 import DEFAULT_STYLE from "../style";
+import { fromMouseEvent } from "../../vector";
 import GraphNode from "./GraphNode";
 import GraphConnection from "./GraphConnection";
 
@@ -30,13 +31,14 @@ const GraphLayer = ({
     .range([0, height]);
   const nodes = R.values(graph.nodes);
   const connections = R.values(graph.connections);
+  const eventToPos = e => fromMouseEvent(e, { scaleX, scaleY });
   return (
     <div
       ref={onRef}
       style={{ height: "100%" }}
-      onMouseDown={graphPointerDown}
-      onMouseUp={graphPointerUp}
-      onMouseMove={graphPointerMove}
+      onMouseDown={e => graphPointerDown(eventToPos(e))}
+      onMouseUp={e => graphPointerUp(eventToPos(e))}
+      onMouseMove={e => graphPointerMove(eventToPos(e))}
     >
       <svg width={width} height={height - 5}>
         <Group>
@@ -46,7 +48,7 @@ const GraphLayer = ({
               scaleX={scaleX}
               scaleY={scaleY}
               node={node}
-              nodePointerDown={() => nodePointerDown(node)}
+              nodePointerDown={pos => nodePointerDown(node, pos)}
               inPinPointerDown={inPinPointerDown}
               outPinPointerDown={outPinPointerDown}
             />

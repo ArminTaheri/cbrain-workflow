@@ -1,7 +1,9 @@
 import React from "react";
 import { Group } from "@vx/vx";
+import * as V from "../../vector";
 import { NODE_TYPE } from "../types";
-import IOPin, { PIN_LABEL_DIRECTION } from "./IOPin";
+import DEFAULT_STYLE from "../style";
+import IOPin from "./IOPin";
 import FileSourceNode from "./FileSourceNode";
 import FileFilterNode from "./FileFilterNode";
 import TaskNode from "./TaskNode";
@@ -13,32 +15,40 @@ const GraphNodeOverlay = ({
   nodePointerDown,
   inPinPointerDown,
   outPinPointerDown
-}) => (
-  <Group>
-    {node.inputs.map((input, i) => (
-      <IOPin
-        key={`${i}-${node.inputs.length}`}
-        pin={input}
-        pinPointerDown={() => inPinPointerDown(node, i)}
-        labelDirection={PIN_LABEL_DIRECTION.BOTTOM}
+}) => {
+  return (
+    <Group>
+      {node.inputs.map((input, i) => (
+        <IOPin
+          key={`${i}-${node.inputs.length}`}
+          pin={input}
+          offset={{
+            x: (width * (i + 0.5)) / node.inputs.length,
+            y: -DEFAULT_STYLE.pinPadding
+          }}
+          pinPointerDown={() => inPinPointerDown(node, i)}
+        />
+      ))}
+      <rect
+        style={{ strokeOpacity: "0", fillOpacity: "0" }}
+        width={width}
+        height={height}
+        onMouseDown={nodePointerDown}
       />
-    ))}
-    <rect
-      style={{ strokeOpacity: "0", fillOpacity: "0" }}
-      width={width}
-      height={height}
-      onMouseDown={nodePointerDown}
-    />
-    {node.outputs.map((output, i) => (
-      <IOPin
-        key={`${i}-${node.outputs.length}`}
-        pin={output}
-        pinPointerDown={() => outPinPointerDown(node, i)}
-        labelDirection={PIN_LABEL_DIRECTION.TOP}
-      />
-    ))}
-  </Group>
-);
+      {node.outputs.map((output, i) => (
+        <IOPin
+          key={`${i}-${node.outputs.length}`}
+          offset={{
+            x: (width * (i + 0.5)) / node.outputs.length,
+            y: DEFAULT_STYLE.pinPadding + height
+          }}
+          pin={output}
+          pinPointerDown={() => outPinPointerDown(node, i)}
+        />
+      ))}
+    </Group>
+  );
+};
 
 const GraphNode = ({
   scaleX,
@@ -53,7 +63,10 @@ const GraphNode = ({
       width={width}
       height={height}
       node={node}
-      nodePointerDown={nodePointerDown}
+      nodePointerDown={e => {
+        const offset = V.fromMouseEvent(e, { scaleX, scaleY });
+        nodePointerDown(V.add(offset, node.position));
+      }}
       inPinPointerDown={inPinPointerDown}
       outPinPointerDown={outPinPointerDown}
     />

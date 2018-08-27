@@ -21,15 +21,9 @@ export const moveNodesEpic = (action$, state$) => {
     Rx.map(
       R.pipe(
         R.prop("payload"),
-        ({ nodeID, position }) => ({ nodeID, position })
+        ({ node, position }) => ({ node, startPos: position })
       )
-    ),
-    Rx.combineLatest(state$),
-    Rx.map(([start, state]) => ({
-      id: start.nodeID,
-      startPos: start.position,
-      node: state.graph.nodes[start.nodeID]
-    }))
+    )
   );
   const endNodeMove$ = action$.pipe(
     ofType(END_NODE_MOVE),
@@ -40,21 +34,20 @@ export const moveNodesEpic = (action$, state$) => {
     Rx.map(R.path(["payload", "position"]))
   );
   const editNode$ = startNodeMove$.pipe(
-    Rx.mergeMap(({ id, startPos, node }) =>
+    Rx.switchMap(({ startPos, node }) =>
       continueNodeMove$.pipe(
         Rx.map(currentPos =>
           editNode({
-            id,
             node: R.assoc(
               "position",
-              V.add(node.position, V.sub(currentPos, startPos))
+              V.add(node.position, V.sub(currentPos, startPos)),
+              node
             )
           })
-        )
+        ),
+        Rx.takeUntil(endNodeMove$)
       )
-    ),
-    Rx.takeUntil(endNodeMove$)
+    )
   );
-
   return editNode$;
 };

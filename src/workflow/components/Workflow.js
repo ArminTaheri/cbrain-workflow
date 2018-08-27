@@ -24,15 +24,6 @@ const ACTIONS_LIST = [
   ACTIONS.PLACE_FILE_FILTER
 ];
 
-const HANDLER_CONFIGS = {
-  [ACTIONS.NONE.id]: {},
-  [ACTIONS.MOVE.id]: {},
-  [ACTIONS.REMOVE_NODE.id]: {},
-  [ACTIONS.CONNECT.id]: {},
-  [ACTIONS.PLACE_TASK.id]: {},
-  [ACTIONS.PLACE_FILE_FILTER.id]: {}
-};
-
 const ActionsMenu = ({ activeAction, setActiveAction }) => (
   <ListGroup>
     {ACTIONS_LIST.map(action => (
@@ -47,16 +38,44 @@ const ActionsMenu = ({ activeAction, setActiveAction }) => (
   </ListGroup>
 );
 
-const Workflow = props => {
-  const {
-    activeAction,
-    setActiveAction,
-    editNode,
-    removeNode,
-    placeFileFilterNode,
-    placeTaskNode
-  } = props;
-  const handlers = HANDLER_CONFIGS[activeAction.id] || {};
+const Workflow = ({
+  activeAction,
+  setActiveAction,
+  startConnectionOutput,
+  endConnectionInput,
+  continueConnection,
+  startNodeMove,
+  endNodeMove,
+  continueNodeMove,
+  editNode,
+  removeNode,
+  placeFileFilterNode,
+  placeTaskNode,
+  ...graphLayerProps
+}) => {
+  const HANDLER_CONFIGS = {
+    BASE: {
+      graphPointerUp: () => {
+        endNodeMove();
+        endConnectionInput();
+      }
+    },
+    [ACTIONS.NONE.id]: {},
+    [ACTIONS.MOVE.id]: {
+      nodePointerDown: (node, position) => startNodeMove({ node, position }),
+      graphPointerMove: position => continueNodeMove({ position })
+    },
+    [ACTIONS.REMOVE_NODE.id]: {
+      nodePointerDown: id => removeNode({ id })
+    },
+    [ACTIONS.CONNECT.id]: {},
+    [ACTIONS.PLACE_TASK.id]: {},
+    [ACTIONS.PLACE_FILE_FILTER.id]: {}
+  };
+  const handlers = {
+    ...HANDLER_CONFIGS[activeAction.id],
+    ...HANDLER_CONFIGS.BASE
+  };
   return (
     <Grid fluid>
       <Row>
@@ -68,7 +87,7 @@ const Workflow = props => {
         </Col>
         {/* TODO: Remove hardcoded height */}
         <Col md={10} style={{ height: "800px" }}>
-          <GraphLayer {...props} {...handlers} />
+          <GraphLayer {...graphLayerProps} {...handlers} />
         </Col>
       </Row>
     </Grid>

@@ -2,11 +2,11 @@ import * as R from "ramda";
 import { createAction } from "redux-actions";
 import uuid from "uuid/v4";
 
-export const EMPTY_GRAPH = {
+export const EMPTY_GRAPH = () => ({
   name: "New Workflow",
   nodes: {},
   connections: {}
-};
+});
 
 export const makeID = map => {
   let id;
@@ -31,7 +31,7 @@ export const addConnection = createAction(ADD_CONNECTION);
 export const REMOVE_CONNECTION = "REMOVE_CONNECTION";
 export const removeConnection = createAction(REMOVE_CONNECTION);
 
-export const graphReducer = (state = EMPTY_GRAPH, action) => {
+export const graphReducer = (state = EMPTY_GRAPH(), action) => {
   if (!action.payload) {
     return state;
   }
@@ -40,10 +40,10 @@ export const graphReducer = (state = EMPTY_GRAPH, action) => {
       const id = makeID(state.nodes);
       const node = R.assoc("id", id, action.payload);
 
-      return R.over(R.lensProp("nodes"), R.assoc(id, node), state);
+      return R.assocPath(["nodes", id], node, state);
     }
     case REMOVE_NODE: {
-      const id = action.payload;
+      const { id } = action.payload;
       const removeConnections = R.pipe(
         R.toPairs,
         R.reject(
@@ -58,12 +58,14 @@ export const graphReducer = (state = EMPTY_GRAPH, action) => {
         R.over(R.lensProp("connections"), removeConnections),
         R.over(R.lensProp("nodes"), R.dissoc(id))
       );
+
       return update(state);
     }
     case EDIT_NODE: {
-      const { id, content } = action.payload;
+      const { node } = action.payload;
+      const { id } = node;
 
-      return R.assocPath(["nodes", id, "content"], content, state);
+      return R.assocPath(["nodes", id], node, state);
     }
     case ADD_CONNECTION: {
       const id = makeID(state.connections);

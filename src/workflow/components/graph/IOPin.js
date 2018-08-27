@@ -4,29 +4,43 @@ import { Group } from "@vx/vx";
 import { withState } from "recompose";
 import PropTypes from "prop-types";
 import { PointType, NodeInputType, NodeOutputType } from "../types";
-
-export const PIN_LABEL_DIRECTION = {
-  TOP: "TOP",
-  BOTTOM: "BOTTOM"
-};
+import DEFAULT_STYLE from "../style";
 
 // Render the input or output of a node.
 const IOPin = ({
   pin,
   labelDirection,
-  position,
+  offset = { x: 0, y: 0 },
   pinPointerDown,
   hovered,
-  onHover
-}) => <Group />;
+  setHovered
+}) => {
+  return (
+    <Group left={offset.x} top={offset.y}>
+      {hovered && (
+        <text
+          x={(-pin.name.length * 5) / 2}
+          y={-1.5 * DEFAULT_STYLE.textStyle.ioPinName.height}
+        >
+          {pin.name}
+        </text>
+      )}
+      <circle
+        r={DEFAULT_STYLE.pinSize}
+        onMouseDown={pinPointerDown}
+        onMouseEnter={() => setHovered(true)}
+        onMouseOut={() => setHovered(false)}
+      />
+    </Group>
+  );
+};
 
 IOPin.propTypes = {
   pin: PropTypes.oneOfType([NodeInputType, NodeOutputType]),
-  labelDirection: PropTypes.oneOf(R.values(PIN_LABEL_DIRECTION)),
-  position: PointType,
+  offset: PointType,
   pinPointerDown: PropTypes.func,
   hovered: PropTypes.bool,
   onHover: PropTypes.func
 };
 
-export default withState("hovered", "onHover", false)(IOPin);
+export default withState("hovered", "setHovered", false)(IOPin);
