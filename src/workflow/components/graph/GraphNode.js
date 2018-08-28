@@ -9,43 +9,56 @@ import FileFilterNode from "./FileFilterNode";
 import TaskNode from "./TaskNode";
 
 const GraphNodeOverlay = ({
+  scaleX,
+  scaleY,
   width,
   height,
   node,
   nodePointerDown,
+  outPinPointerDown,
   inPinPointerDown,
-  outPinPointerDown
+  outPinPointerUp,
+  inPinPointerUp
 }) => {
+  const inverseScale = V.trans(scaleX.invert, scaleY.invert);
   return (
     <Group>
-      {node.inputs.map((input, i) => (
-        <IOPin
-          key={`${i}-${node.inputs.length}`}
-          pin={input}
-          offset={{
-            x: (width * (i + 0.5)) / node.inputs.length,
-            y: -DEFAULT_STYLE.pinPadding
-          }}
-          pinPointerDown={() => inPinPointerDown(node, i)}
-        />
-      ))}
+      {node.inputs.map((input, i) => {
+        const offset = {
+          x: (width * (i + 0.5)) / node.inputs.length,
+          y: -DEFAULT_STYLE.pinPadding
+        };
+        return (
+          <IOPin
+            key={`${i}-${node.inputs.length}`}
+            pin={input}
+            offset={offset}
+            pinPointerDown={() => inPinPointerDown(node, inverseScale(offset))}
+            pinPointerUp={() => inPinPointerUp(node, inverseScale(offset))}
+          />
+        );
+      })}
       <rect
         style={{ strokeOpacity: "0", fillOpacity: "0" }}
         width={width}
         height={height}
         onMouseDown={nodePointerDown}
       />
-      {node.outputs.map((output, i) => (
-        <IOPin
-          key={`${i}-${node.outputs.length}`}
-          offset={{
-            x: (width * (i + 0.5)) / node.outputs.length,
-            y: DEFAULT_STYLE.pinPadding + height
-          }}
-          pin={output}
-          pinPointerDown={() => outPinPointerDown(node, i)}
-        />
-      ))}
+      {node.outputs.map((output, i) => {
+        const offset = {
+          x: (width * (i + 0.5)) / node.outputs.length,
+          y: DEFAULT_STYLE.pinPadding + height
+        };
+        return (
+          <IOPin
+            key={`${i}-${node.outputs.length}`}
+            offset={offset}
+            pin={output}
+            pinPointerDown={() => outPinPointerDown(node, inverseScale(offset))}
+            pinPointerUp={() => outPinPointerUp(node, inverseScale(offset))}
+          />
+        );
+      })}
     </Group>
   );
 };
@@ -55,11 +68,15 @@ const GraphNode = ({
   scaleY,
   node,
   nodePointerDown,
+  outPinPointerDown,
   inPinPointerDown,
-  outPinPointerDown
+  outPinPointerUp,
+  inPinPointerUp
 }) => {
   const renderOverlay = ({ width, height }) => (
     <GraphNodeOverlay
+      scaleX={scaleX}
+      scaleY={scaleY}
       width={width}
       height={height}
       node={node}
@@ -67,8 +84,10 @@ const GraphNode = ({
         const offset = V.fromMouseEvent(e, { scaleX, scaleY });
         nodePointerDown(V.add(offset, node.position));
       }}
-      inPinPointerDown={inPinPointerDown}
       outPinPointerDown={outPinPointerDown}
+      inPinPointerDown={inPinPointerDown}
+      outPinPointerUp={outPinPointerUp}
+      inPinPointerUp={inPinPointerUp}
     />
   );
   const { type, position, content } = node;

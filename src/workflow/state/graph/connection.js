@@ -9,13 +9,13 @@ import { addConnection } from "./graph";
 export const makeConnection = ({
   parentID,
   childID,
-  inputIndex,
-  outputIndex
+  inputOffset,
+  outputOffset
 }) => ({
   parentID,
   childID,
-  inputIndex,
-  outputIndex
+  inputOffset,
+  outputOffset
 });
 
 export const START_CONNECTION_OUTPUT = "START_CONNECTION_OUTPUT";
@@ -37,13 +37,13 @@ export const SET_DRAG = "SET_DRAG";
 export const setDrag = createAction(SET_DRAG);
 
 export const makeConnectionEpic = (actions$, state$) => {
-  const extractParentParams = ({ parentID, outputIndex }) => ({
+  const extractParentParams = ({ parentID, outputOffset }) => ({
     parentID,
-    outputIndex
+    outputOffset
   });
-  const extractChildParams = ({ childID, inputIndex }) => ({
+  const extractChildParams = ({ childID, inputOffset }) => ({
     childID,
-    inputIndex
+    inputOffset
   });
   const startConnectionOutput$ = actions$.pipe(
     ofType(START_CONNECTION_OUTPUT),
@@ -86,7 +86,7 @@ export const makeConnectionEpic = (actions$, state$) => {
     Rx.map(
       R.pipe(
         R.prop("payload"),
-        ({ position }) => ({ position })
+        ({ position }) => position
       )
     )
   );
@@ -98,9 +98,9 @@ export const makeConnectionEpic = (actions$, state$) => {
       }
       return makeConnection({
         parentID: start.parentID,
-        outputIndex: start.outputIndex,
+        outputOffset: start.outputOffset,
         childID: end.childID,
-        inputIndex: end.inputIndex
+        inputOffset: end.inputOffset
       });
     }),
     Rx.filter(
@@ -121,20 +121,26 @@ export const makeConnectionEpic = (actions$, state$) => {
   );
   const makeDragStream = start =>
     continueConnection$.pipe(
-      Rx.map(current => setDrag({ start, end: current })),
+      Rx.map(currentPosition => setDrag({ currentPosition, ...start })),
       Rx.takeUntil(endDrag$)
     );
   const continueDrag$ = merge(
     startConnectionOutput$.pipe(
-      Rx.combineLatest(state$),
-      Rx.map(([start, state]) => state.graph.nodes[start.parentID].position),
-      Rx.mergeMap(makeDragStream)
+      Rx.withLatestFrom(state$),
+      Rx.map(([start, state]) => ({
+        startNode: state.graph.nodes[start.parentID],
+        offset: start.outputOffset
+      })),
+      Rx.switchMap(makeDragStream)
     ) /*,
     startConnectionInput$.pipe(
-      Rx.combineLatest(state$),
-      Rx.map(([start, state]) => state.graph.nodes[start.childID].position),
-      Rx.mergeMap(makeDragStream)
-    )*/
+      Rx.withLatestFrom(state$),
+      Rx.map(([start, state]) => ({
+        startNode: state.graph.nodes[start.parentID],
+        offset: start.inputOffset
+      })),
+      Rx.switchMap(makeDragStream)
+    ) */
   );
 
   return merge(addConnection$, removeConnection$, continueDrag$, endDrag$);

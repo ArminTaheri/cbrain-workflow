@@ -8,17 +8,21 @@ import DEFAULT_STYLE from "../style";
 import { fromMouseEvent } from "../../vector";
 import GraphNode from "./GraphNode";
 import GraphConnection from "./GraphConnection";
+import ConnectionDrag from "./ConnectionDrag";
 
 // GUI Layer containing the visual graph representation
 // of the workflow.
 const GraphLayer = ({
   graph,
+  connectionDrag = null,
   graphPointerDown = R.identity,
   graphPointerMove = R.identity,
   graphPointerUp = R.identity,
   nodePointerDown = R.identity,
-  inPinPointerDown = R.identity,
   outPinPointerDown = R.identity,
+  inPinPointerDown = R.identity,
+  outPinPointerUp = R.identity,
+  inPinPointerUp = R.identity,
   width = 400,
   height = 300,
   onRef
@@ -41,6 +45,9 @@ const GraphLayer = ({
       onMouseMove={e => graphPointerMove(eventToPos(e))}
     >
       <svg width={width} height={height - 5}>
+        {connectionDrag && (
+          <ConnectionDrag scaleX={scaleX} scaleY={scaleY} {...connectionDrag} />
+        )}
         <Group>
           {nodes.map((node, i) => (
             <GraphNode
@@ -49,13 +56,17 @@ const GraphLayer = ({
               scaleY={scaleY}
               node={node}
               nodePointerDown={pos => nodePointerDown(node, pos)}
-              inPinPointerDown={inPinPointerDown}
               outPinPointerDown={outPinPointerDown}
+              inPinPointerDown={inPinPointerDown}
+              outPinPointerUp={outPinPointerUp}
+              inPinPointerUp={inPinPointerUp}
             />
           ))}
           {connections.map((connection, i) => (
             <GraphConnection
               key={`${i}-${connections.length}`}
+              scaleX={scaleX}
+              scaleY={scaleY}
               graph={graph}
               connection={connection}
             />

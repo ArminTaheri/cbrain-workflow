@@ -11,7 +11,7 @@ const ACTIONS = {
   MOVE: { id: "MOVE", name: "Move nodes" },
   REMOVE_NODE: { id: "REMOVE_NODE", name: "Remove nodes" },
   CONNECT: { id: "CONNECT", name: "Connect nodes" },
-  PLACE_TASK: { id: "PLACE_TASK", name: "Place tasks" },
+  PLACE_TASK: { id: "PLACE_TASK", name: "Place tasks", disabled: true },
   PLACE_FILE_FILTER: { id: "PLACE_FILE_FILTER", name: "Place file filters" }
 };
 
@@ -20,8 +20,8 @@ const ACTIONS_LIST = [
   ACTIONS.MOVE,
   ACTIONS.REMOVE_NODE,
   ACTIONS.CONNECT,
-  ACTIONS.PLACE_TASK,
-  ACTIONS.PLACE_FILE_FILTER
+  ACTIONS.PLACE_FILE_FILTER,
+  ACTIONS.PLACE_TASK
 ];
 
 const ActionsMenu = ({ activeAction, setActiveAction }) => (
@@ -30,6 +30,7 @@ const ActionsMenu = ({ activeAction, setActiveAction }) => (
       <ListGroupItem
         key={action.id}
         active={activeAction === action}
+        disabled={action.disabled}
         onClick={() => setActiveAction(action)}
       >
         {action.name}
@@ -53,24 +54,45 @@ const Workflow = ({
   placeTaskNode,
   ...graphLayerProps
 }) => {
+  const { connectionDrag } = graphLayerProps;
   const HANDLER_CONFIGS = {
-    BASE: {
-      graphPointerUp: () => {
-        endNodeMove();
-        endConnectionInput();
-      }
-    },
     [ACTIONS.NONE.id]: {},
     [ACTIONS.MOVE.id]: {
       nodePointerDown: (node, position) => startNodeMove({ node, position }),
-      graphPointerMove: position => continueNodeMove({ position })
+      graphPointerMove: position => continueNodeMove({ position }),
+      graphPointerUp: () => endNodeMove()
     },
     [ACTIONS.REMOVE_NODE.id]: {
-      nodePointerDown: id => removeNode({ id })
+      nodePointerDown: node => removeNode({ id: node.id })
     },
-    [ACTIONS.CONNECT.id]: {},
+    [ACTIONS.CONNECT.id]: {
+      outPinPointerDown: (node, offset) => {
+        if (connectionDrag) {
+          // startConnectionInput({ childID: node.id, inputOffset: offset })
+          return;
+        }
+        startConnectionOutput({ parentID: node.id, outputOffset: offset });
+      },
+      inPinPointerUp: (node, inputOffset) => {
+        if (connectionDrag) {
+          endConnectionInput({ childID: node.id, inputOffset });
+          return;
+        }
+        // endConnectionOutput({ parentID: node.id, outputOffset: offset })
+      },
+      graphPointerUp: () => {
+        setTimeout(() => {
+          endConnectionInput();
+          // endConnectionOutput();
+        }, 50);
+      },
+      graphPointerMove: position => continueConnection({ position })
+    },
     [ACTIONS.PLACE_TASK.id]: {},
-    [ACTIONS.PLACE_FILE_FILTER.id]: {}
+    [ACTIONS.PLACE_FILE_FILTER.id]: {
+      graphPointerDown: position =>
+        placeFileFilterNode({ position, filter: { selection: [] } })
+    }
   };
   const handlers = {
     ...HANDLER_CONFIGS[activeAction.id],
@@ -82,7 +104,12 @@ const Workflow = ({
         <Col md={2}>
           <ActionsMenu
             activeAction={activeAction}
-            setActiveAction={setActiveAction}
+            setActiveAction={action => {
+              endNodeMove();
+              endConnectionInput();
+              // endConnectionOutput();
+              setActiveAction(action);
+            }}
           />
         </Col>
         {/* TODO: Remove hardcoded height */}

@@ -1,4 +1,3 @@
-import * as R from "ramda";
 import React from "react";
 import { Group } from "@vx/vx";
 import { withState } from "recompose";
@@ -12,6 +11,7 @@ const IOPin = ({
   labelDirection,
   offset = { x: 0, y: 0 },
   pinPointerDown,
+  pinPointerUp,
   hovered,
   setHovered
 }) => {
@@ -28,6 +28,7 @@ const IOPin = ({
       <circle
         r={DEFAULT_STYLE.pinSize}
         onMouseDown={pinPointerDown}
+        onMouseUp={pinPointerUp}
         onMouseEnter={() => setHovered(true)}
         onMouseOut={() => setHovered(false)}
       />
@@ -36,9 +37,10 @@ const IOPin = ({
 };
 
 IOPin.propTypes = {
-  pin: PropTypes.oneOfType([NodeInputType, NodeOutputType]),
-  offset: PointType,
+  pin: PropTypes.oneOfType([NodeInputType, NodeOutputType]).isRequired,
+  offset: PointType.isRequired,
   pinPointerDown: PropTypes.func,
+  pinPointerUp: PropTypes.func,
   hovered: PropTypes.bool,
   onHover: PropTypes.func
 };

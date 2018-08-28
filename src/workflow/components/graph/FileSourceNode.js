@@ -25,7 +25,7 @@ const FileSourceNode = ({
   return (
     <Group left={scaleX(position.x)} top={scaleY(position.y)}>
       <Geometry title={"Source"} width={width} height={height} />
-      <Overlay width={width} height={height} />
+      {Overlay && <Overlay width={width} height={height} />}
     </Group>
   );
 };
