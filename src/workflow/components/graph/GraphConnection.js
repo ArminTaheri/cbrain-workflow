@@ -13,9 +13,9 @@ const GraphConnection = ({ scaleX, scaleY, connection, graph }) => {
   }
   const scale = V.trans(scaleX, scaleY);
   const from = new Point(
-    scale(V.add(startNode.position, connection.outputOffset))
+    V.add(scale(startNode.position), connection.outputOffset)
   );
-  const to = new Point(scale(V.add(endNode.position, connection.inputOffset)));
+  const to = new Point(V.add(scale(endNode.position), connection.inputOffset));
   return <Line from={from} to={to} />;
 };
 

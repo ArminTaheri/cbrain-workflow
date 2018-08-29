@@ -13,7 +13,7 @@ const ConnectionDrag = ({
   currentPosition
 }) => {
   const scale = V.trans(scaleX, scaleY);
-  const from = new Point(scale(V.add(startNode.position, offset)));
+  const from = new Point(V.add(scale(startNode.position), offset));
   const to = new Point(scale(currentPosition));
   return <Line from={from} to={to} />;
 };

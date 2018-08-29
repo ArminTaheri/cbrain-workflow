@@ -20,7 +20,6 @@ const GraphNodeOverlay = ({
   outPinPointerUp,
   inPinPointerUp
 }) => {
-  const inverseScale = V.trans(scaleX.invert, scaleY.invert);
   return (
     <Group>
       {node.inputs.map((input, i) => {
@@ -33,8 +32,8 @@ const GraphNodeOverlay = ({
             key={`${i}-${node.inputs.length}`}
             pin={input}
             offset={offset}
-            pinPointerDown={() => inPinPointerDown(node, inverseScale(offset))}
-            pinPointerUp={() => inPinPointerUp(node, inverseScale(offset))}
+            pinPointerDown={() => inPinPointerDown(node, offset)}
+            pinPointerUp={() => inPinPointerUp(node, offset)}
           />
         );
       })}
@@ -54,8 +53,8 @@ const GraphNodeOverlay = ({
             key={`${i}-${node.outputs.length}`}
             offset={offset}
             pin={output}
-            pinPointerDown={() => outPinPointerDown(node, inverseScale(offset))}
-            pinPointerUp={() => outPinPointerUp(node, inverseScale(offset))}
+            pinPointerDown={() => outPinPointerDown(node, offset)}
+            pinPointerUp={() => outPinPointerUp(node, offset)}
           />
         );
       })}
