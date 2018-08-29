@@ -5,7 +5,7 @@ import { scaleLinear } from "d3-scale";
 import withResizeObserverProps from "@hocs/with-resize-observer-props";
 import { GraphType } from "../types";
 import DEFAULT_STYLE from "../style";
-import { fromMouseEvent } from "../../vector";
+import * as V from "../../vector";
 import GraphNode from "./GraphNode";
 import GraphConnection from "./GraphConnection";
 import ConnectionDrag from "./ConnectionDrag";
@@ -35,7 +35,7 @@ const GraphLayer = ({
     .range([0, height]);
   const nodes = R.values(graph.nodes);
   const connections = R.values(graph.connections);
-  const eventToPos = e => fromMouseEvent(e, { scaleX, scaleY });
+  const eventToPos = e => V.fromMouseEvent(e, { scaleX, scaleY });
   return (
     <div
       ref={onRef}
@@ -49,6 +49,15 @@ const GraphLayer = ({
           <ConnectionDrag scaleX={scaleX} scaleY={scaleY} {...connectionDrag} />
         )}
         <Group>
+          {connections.map((connection, i) => (
+            <GraphConnection
+              key={`${i}-${connections.length}`}
+              scaleX={scaleX}
+              scaleY={scaleY}
+              graph={graph}
+              connection={connection}
+            />
+          ))}
           {nodes.map((node, i) => (
             <GraphNode
               key={`${i}-${nodes.length}`}
@@ -60,15 +69,6 @@ const GraphLayer = ({
               inPinPointerDown={inPinPointerDown}
               outPinPointerUp={outPinPointerUp}
               inPinPointerUp={inPinPointerUp}
-            />
-          ))}
-          {connections.map((connection, i) => (
-            <GraphConnection
-              key={`${i}-${connections.length}`}
-              scaleX={scaleX}
-              scaleY={scaleY}
-              graph={graph}
-              connection={connection}
             />
           ))}
         </Group>

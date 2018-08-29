@@ -1,3 +1,6 @@
+import nodeStyles from "./node-styles";
+import connectionStyles from "./connection-styles";
+
 export default {
   graphDomain: { x: [0, 1], y: [0, 1] },
   minPinSpacing: 8,
@@ -11,5 +14,7 @@ export default {
   textStyle: {
     nodeName: { height: 6 },
     ioPinName: { height: 6 }
-  }
+  },
+  nodeStyles,
+  connectionStyles
 };
