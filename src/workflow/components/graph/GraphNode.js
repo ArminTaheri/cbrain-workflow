@@ -1,6 +1,5 @@
 import React from "react";
 import { Group } from "@vx/vx";
-import * as V from "../../vector";
 import { NODE_TYPE } from "../types";
 import DEFAULT_STYLE from "../style";
 import IOPin from "./IOPin";
@@ -79,10 +78,7 @@ const GraphNode = ({
       width={width}
       height={height}
       node={node}
-      nodePointerDown={e => {
-        const offset = V.fromMouseEvent(e, { scaleX, scaleY });
-        nodePointerDown(V.add(offset, node.position));
-      }}
+      nodePointerDown={e => nodePointerDown(e, node)}
       outPinPointerDown={outPinPointerDown}
       inPinPointerDown={inPinPointerDown}
       outPinPointerUp={outPinPointerUp}

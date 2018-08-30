@@ -9,7 +9,7 @@ export const fromMouseEvent = (e, scale) => {
   const x = e.clientX - left;
   const y = e.clientY - top;
   if (scale) {
-    return { x: scale.scaleX.invert(x), y: scale.scaleY.invert(y) };
+    return { x: scale.scaleX(x), y: scale.scaleY(y) };
   }
   return { x, y };
 };

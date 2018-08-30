@@ -3,6 +3,7 @@ import React from "react";
 import { Group } from "@vx/vx";
 import { scaleLinear } from "d3-scale";
 import withResizeObserverProps from "@hocs/with-resize-observer-props";
+import PropTypes from "prop-types";
 import { GraphType } from "../types";
 import DEFAULT_STYLE from "../style";
 import * as V from "../../vector";
@@ -25,6 +26,7 @@ const GraphLayer = ({
   inPinPointerUp = R.identity,
   width = 400,
   height = 300,
+  viewBox = { left: 0, top: 0, width, height },
   onRef
 }) => {
   const scaleX = scaleLinear()
@@ -33,9 +35,23 @@ const GraphLayer = ({
   const scaleY = scaleLinear()
     .domain(DEFAULT_STYLE.graphDomain.y)
     .range([0, height]);
+  const viewBoxScale = {
+    scaleX: R.compose(
+      scaleX.invert,
+      scaleLinear()
+        .domain([0, width])
+        .range([viewBox.left, viewBox.left + viewBox.width])
+    ),
+    scaleY: R.compose(
+      scaleY.invert,
+      scaleLinear()
+        .domain([0, height])
+        .range([viewBox.top, viewBox.top + viewBox.height])
+    )
+  };
   const nodes = R.values(graph.nodes);
   const connections = R.values(graph.connections);
-  const eventToPos = e => V.fromMouseEvent(e, { scaleX, scaleY });
+  const eventToPos = e => V.fromMouseEvent(e, viewBoxScale);
   return (
     <div
       ref={onRef}
@@ -44,7 +60,13 @@ const GraphLayer = ({
       onMouseUp={e => graphPointerUp(eventToPos(e))}
       onMouseMove={e => graphPointerMove(eventToPos(e))}
     >
-      <svg width={width} height={height - 5}>
+      <svg
+        width={width}
+        height={height - 5}
+        viewBox={`${viewBox.left} ${viewBox.top} ${viewBox.width} ${
+          viewBox.height
+        }`}
+      >
         {connectionDrag && (
           <ConnectionDrag scaleX={scaleX} scaleY={scaleY} {...connectionDrag} />
         )}
@@ -64,7 +86,9 @@ const GraphLayer = ({
               scaleX={scaleX}
               scaleY={scaleY}
               node={node}
-              nodePointerDown={pos => nodePointerDown(node, pos)}
+              nodePointerDown={(e, node) =>
+                nodePointerDown(V.add(eventToPos(e), node.position), node)
+              }
               outPinPointerDown={outPinPointerDown}
               inPinPointerDown={inPinPointerDown}
               outPinPointerUp={outPinPointerUp}
@@ -78,7 +102,24 @@ const GraphLayer = ({
 };
 
 GraphLayer.propTypes = {
-  graph: GraphType.isRequired
+  graph: GraphType.isRequired,
+  connectionDrag: PropTypes.object,
+  graphPointerDown: PropTypes.func,
+  graphPointerMove: PropTypes.func,
+  graphPointerUp: PropTypes.func,
+  nodePointerDown: PropTypes.func,
+  outPinPointerDown: PropTypes.func,
+  inPinPointerDown: PropTypes.func,
+  outPinPointerUp: PropTypes.func,
+  inPinPointerUp: PropTypes.func,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  viewBox: PropTypes.shape({
+    left: PropTypes.number,
+    top: PropTypes.number,
+    width: PropTypes.number,
+    height: PropTypes.number
+  })
 };
 
 export default withResizeObserverProps(({ width, height }) => ({

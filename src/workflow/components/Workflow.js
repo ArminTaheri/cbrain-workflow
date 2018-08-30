@@ -31,7 +31,7 @@ const ActionsMenu = ({ activeAction, setActiveAction }) => (
         key={action.id}
         active={activeAction === action}
         disabled={action.disabled}
-        onClick={() => setActiveAction(action)}
+        onClick={() => !action.disabled && setActiveAction(action)}
       >
         {action.name}
       </ListGroupItem>
@@ -58,7 +58,7 @@ const Workflow = ({
   const HANDLER_CONFIGS = {
     [ACTIONS.NONE.id]: {},
     [ACTIONS.MOVE.id]: {
-      nodePointerDown: (node, position) => startNodeMove({ node, position }),
+      nodePointerDown: (position, node) => startNodeMove({ position, node }),
       graphPointerMove: position => continueNodeMove({ position }),
       graphPointerUp: () => endNodeMove()
     },
