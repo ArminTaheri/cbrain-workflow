@@ -37,13 +37,13 @@ export const moveNodesEpic = (action$, state$) => {
     Rx.switchMap(({ startPos, node }) =>
       continueNodeMove$.pipe(
         Rx.map(currentPos =>
-          editNode({
-            node: R.assoc(
+          editNode(
+            R.assoc(
               "position",
               V.add(node.position, V.sub(currentPos, startPos)),
               node
             )
-          })
+          )
         ),
         Rx.takeUntil(endNodeMove$)
       )

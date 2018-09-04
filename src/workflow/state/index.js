@@ -17,6 +17,24 @@ import {
 } from "./graph";
 
 import {
+  startSelection,
+  continueSelection,
+  endSelection,
+  selectionBoxEpic,
+  selectionBoxReducer,
+  removeSelection,
+  startMoveSelection,
+  continueMoveSelection,
+  endMoveSelection,
+  selectionEpic,
+  selectionReducer,
+  copySelection,
+  pasteClipboard,
+  clipboardEpic,
+  clipboardReducer
+} from "./selection";
+
+import {
   placeFileSourceNode,
   placeFileSourceNodeEpic,
   placeFileFilterNode,
@@ -30,15 +48,21 @@ export const rootEpic = combineEpics(
   moveNodesEpic,
   placeFileSourceNodeEpic,
   placeFileFilterNodeEpic,
-  placeTaskNodeEpic
+  placeTaskNodeEpic,
+  selectionBoxEpic,
+  selectionEpic,
+  clipboardEpic
 );
 
 export const rootReducer = combineReducers({
   graph: graphReducer,
-  connectionDrag: connectionDragReducer
+  connectionDrag: connectionDragReducer,
+  selectionBox: selectionBoxReducer,
+  selection: selectionReducer,
+  clipboard: clipboardReducer
 });
 
-/* Transform a map of action builders to map of redux dispatch functions
+/* Transform a map of action builders to a map of redux dispatch functions
  * after being given a dispatch function.
  */
 const makeDispatchers = actionBuilders => dispatch =>
@@ -62,5 +86,14 @@ export const mapDispatchToProps = makeDispatchers({
   removeNode,
   placeFileSourceNode,
   placeFileFilterNode,
-  placeTaskNode
+  placeTaskNode,
+  startSelection,
+  continueSelection,
+  endSelection,
+  removeSelection,
+  startMoveSelection,
+  continueMoveSelection,
+  endMoveSelection,
+  copySelection,
+  pasteClipboard
 });
