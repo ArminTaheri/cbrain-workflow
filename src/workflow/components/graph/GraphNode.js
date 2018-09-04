@@ -13,6 +13,7 @@ const GraphNodeOverlay = ({
   width,
   height,
   node,
+  selected,
   nodePointerDown,
   outPinPointerDown,
   inPinPointerDown,
@@ -37,7 +38,11 @@ const GraphNodeOverlay = ({
         );
       })}
       <rect
-        style={{ strokeOpacity: "0", fillOpacity: "0" }}
+        style={{
+          stroke: selected ? "DarkGreen" : "none",
+          strokeWidth: "2",
+          fillOpacity: "0"
+        }}
         width={width}
         height={height}
         onMouseDown={nodePointerDown}
@@ -65,6 +70,7 @@ const GraphNode = ({
   scaleX,
   scaleY,
   node,
+  selected = false,
   nodePointerDown,
   outPinPointerDown,
   inPinPointerDown,
@@ -78,6 +84,7 @@ const GraphNode = ({
       width={width}
       height={height}
       node={node}
+      selected={selected}
       nodePointerDown={e => nodePointerDown(e, node)}
       outPinPointerDown={outPinPointerDown}
       inPinPointerDown={inPinPointerDown}

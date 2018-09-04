@@ -7,15 +7,20 @@ import PropTypes from "prop-types";
 import { GraphType } from "../types";
 import DEFAULT_STYLE from "../style";
 import * as V from "../../vector";
+import { INITIAL_VIEWBOX } from "../../state/viewbox";
 import GraphNode from "./GraphNode";
 import GraphConnection from "./GraphConnection";
 import ConnectionDrag from "./ConnectionDrag";
+import SelectionBox from "./SelectionBox";
 
 // GUI Layer containing the visual graph representation
 // of the workflow.
 const GraphLayer = ({
   graph,
   connectionDrag = null,
+  selectionBox = null,
+  selection = [],
+  viewbox = INITIAL_VIEWBOX,
   graphPointerDown = R.identity,
   graphPointerMove = R.identity,
   graphPointerUp = R.identity,
@@ -26,7 +31,6 @@ const GraphLayer = ({
   inPinPointerUp = R.identity,
   width = 400,
   height = 300,
-  viewBox = { left: 0, top: 0, width, height },
   onRef
 }) => {
   const scaleX = scaleLinear()
@@ -35,18 +39,24 @@ const GraphLayer = ({
   const scaleY = scaleLinear()
     .domain(DEFAULT_STYLE.graphDomain.y)
     .range([0, height]);
+  const viewRect = {
+    left: scaleX(viewbox.position.x),
+    top: scaleY(viewbox.position.y),
+    width: viewbox.zoom * width,
+    height: viewbox.zoom * (height - 5)
+  };
   const viewBoxScale = {
     scaleX: R.compose(
       scaleX.invert,
       scaleLinear()
         .domain([0, width])
-        .range([viewBox.left, viewBox.left + viewBox.width])
+        .range([viewRect.left, viewRect.left + viewRect.width])
     ),
     scaleY: R.compose(
       scaleY.invert,
       scaleLinear()
         .domain([0, height])
-        .range([viewBox.top, viewBox.top + viewBox.height])
+        .range([viewRect.top, viewRect.top + viewRect.height])
     )
   };
   const nodes = R.values(graph.nodes);
@@ -63,9 +73,12 @@ const GraphLayer = ({
       <svg
         width={width}
         height={height - 5}
-        viewBox={`${viewBox.left} ${viewBox.top} ${viewBox.width} ${
-          viewBox.height
-        }`}
+        viewBox={[
+          viewRect.left,
+          viewRect.top,
+          viewRect.width,
+          viewRect.height
+        ].join(" ")}
       >
         {connectionDrag && (
           <ConnectionDrag scaleX={scaleX} scaleY={scaleY} {...connectionDrag} />
@@ -86,6 +99,7 @@ const GraphLayer = ({
               scaleX={scaleX}
               scaleY={scaleY}
               node={node}
+              selected={selection.includes(node.id)}
               nodePointerDown={(e, node) =>
                 nodePointerDown(V.add(eventToPos(e), node.position), node)
               }
@@ -95,6 +109,9 @@ const GraphLayer = ({
               inPinPointerUp={inPinPointerUp}
             />
           ))}
+          {selectionBox && (
+            <SelectionBox scaleX={scaleX} scaleY={scaleY} box={selectionBox} />
+          )}
         </Group>
       </svg>
     </div>

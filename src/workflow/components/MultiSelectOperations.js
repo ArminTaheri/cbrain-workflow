@@ -2,8 +2,8 @@ import React from "react";
 import { ListGroup, ListGroupItem } from "react-bootstrap";
 
 export const MULTI_SELECT_OPERATIONS = {
-  REMOVE: { id: "REMOVE", name: "Remove selection", disabled: true },
-  COPY: { id: "COPY", name: "Copy selection", disabled: true }
+  REMOVE: { id: "REMOVE", name: "Remove selection" },
+  COPY: { id: "COPY", name: "Copy selection" }
 };
 
 const MULTI_SELECT_OPERATIONS_LIST = [

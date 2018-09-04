@@ -4,7 +4,7 @@ import connectionStyles from "./connection-styles";
 export default {
   graphDomain: { x: [0, 1], y: [0, 1] },
   minPinSpacing: 8,
-  pinSize: 5,
+  pinSize: 8,
   pinPadding: 15,
   sizes: {
     small: { width: 64, height: 64 },

@@ -23,18 +23,35 @@ const Workflow = ({
   removeNode,
   placeFileFilterNode,
   placeTaskNode,
+  startSelection,
+  continueSelection,
+  endSelection,
+  removeSelection,
+  startMoveSelection,
+  continueMoveSelection,
+  endMoveSelection,
+  copySelection,
+  pasteClipboard,
+  startPan,
+  continuePan,
+  endPan,
   ...graphLayerProps
 }) => {
   const { connectionDrag } = graphLayerProps;
   const HANDLER_CONFIGS = {
-    [ACTIONS.PAN.id]: {},
+    [ACTIONS.NONE.id]: {},
+    [ACTIONS.PAN.id]: {
+      graphPointerDown: position => startPan({ position }),
+      graphPointerMove: position => continuePan({ position }),
+      graphPointerUp: () => endPan()
+    },
     [ACTIONS.MOVE.id]: {
       nodePointerDown: (position, node) => startNodeMove({ position, node }),
       graphPointerMove: position => continueNodeMove({ position }),
       graphPointerUp: () => endNodeMove()
     },
     [ACTIONS.REMOVE_NODE.id]: {
-      nodePointerDown: (_, node) => removeNode({ id: node.id })
+      nodePointerDown: (_, node) => removeNode(node.id)
     },
     [ACTIONS.CONNECT.id]: {
       outPinPointerDown: (node, offset) => {
@@ -55,7 +72,7 @@ const Workflow = ({
         setTimeout(() => {
           endConnectionInput();
           // endConnectionOutput();
-        }, 50);
+        }, 20);
       },
       graphPointerMove: position => continueConnection({ position })
     },
@@ -63,7 +80,26 @@ const Workflow = ({
     [ACTIONS.PLACE_FILE_FILTER.id]: {
       graphPointerDown: position =>
         placeFileFilterNode({ position, filter: { selection: [] } })
+    },
+    [ACTIONS.SELECT_MULTI.id]: {
+      graphPointerDown: position => startSelection({ position }),
+      graphPointerMove: position => continueSelection({ position }),
+      graphPointerUp: () => endSelection()
+    },
+    [ACTIONS.MOVE_MULTI.id]: {
+      graphPointerDown: position => startMoveSelection({ position }),
+      graphPointerMove: position => continueMoveSelection({ position }),
+      graphPointerUp: () => endMoveSelection()
+    },
+    [ACTIONS.PASTE.id]: {
+      graphPointerUp: position => pasteClipboard({ position })
     }
+  };
+  const resetInteraction = () => {
+    endNodeMove();
+    endConnectionInput();
+    // endConnectionOutput();
+    endSelection();
   };
   const handlers = HANDLER_CONFIGS[activeAction.id];
   return (
@@ -75,9 +111,7 @@ const Workflow = ({
               <ActionsMenu
                 activeAction={activeAction}
                 setActiveAction={action => {
-                  endNodeMove();
-                  endConnectionInput();
-                  // endConnectionOutput();
+                  resetInteraction();
                   setActiveAction(action);
                 }}
               />
@@ -86,8 +120,20 @@ const Workflow = ({
           <Row>
             <Col xs={12}>
               <MultiSelectOperations
-                runOperation={() => {
-                  console.log(MULTI_SELECT_OPERATIONS);
+                runOperation={operation => {
+                  switch (operation) {
+                    case MULTI_SELECT_OPERATIONS.REMOVE.id: {
+                      removeSelection();
+                      return;
+                    }
+                    case MULTI_SELECT_OPERATIONS.COPY.id: {
+                      copySelection();
+                      return;
+                    }
+                    default: {
+                      return;
+                    }
+                  }
                 }}
               />
             </Col>
@@ -103,7 +149,7 @@ const Workflow = ({
 };
 
 export default compose(
-  withState("activeAction", "setActiveAction", ACTIONS.PAN),
+  withState("activeAction", "setActiveAction", ACTIONS.NONE),
   connect(
     R.identity,
     mapDispatchToProps

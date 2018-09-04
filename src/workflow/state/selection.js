@@ -107,8 +107,7 @@ export const selectionEpic = (action$, state$) => {
 
   const endMoveSelection$ = action$.pipe(
     ofType(END_MOVE_SELECTION),
-    Rx.filter(R.has("payload")),
-    Rx.map(R.path(["payload", "position"]))
+    Rx.mapTo(null)
   );
 
   const dragState$ = startMoveSelection$.pipe(
@@ -170,7 +169,7 @@ export const selectionEpic = (action$, state$) => {
 export const selectionReducer = (state = [], action) => {
   switch (action.type) {
     case SET_SELECTION: {
-      return action.payload instanceof Array ? action.payload : [];
+      return action.payload instanceof Array ? action.payload : state;
     }
     default:
       return state;
@@ -237,7 +236,7 @@ export const clipboardEpic = (action$, state$) => {
 export const clipboardReducer = (state = [], action) => {
   switch (action.type) {
     case SET_CLIPBOARD: {
-      return action.payload instanceof Array ? action.payload : [];
+      return action.payload instanceof Array ? action.payload : state;
     }
     default:
       return state;

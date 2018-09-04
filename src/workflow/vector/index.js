@@ -6,6 +6,10 @@ export const min = (...ps) => ({
   x: Math.min(...ps.map(p => p.x)),
   y: Math.min(...ps.map(p => p.y))
 });
+export const max = (...ps) => ({
+  x: Math.max(...ps.map(p => p.x)),
+  y: Math.max(...ps.map(p => p.y))
+});
 export const scale = (p, k) => ({ x: k * p.x, y: k * p.y });
 export const trans = (tx, ty) => p => ({ x: tx(p.x), y: ty(p.y) });
 export const boxContains = (box, p) => {

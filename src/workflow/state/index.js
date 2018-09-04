@@ -17,6 +17,15 @@ import {
 } from "./graph";
 
 import {
+  placeFileSourceNode,
+  placeFileSourceNodeEpic,
+  placeFileFilterNode,
+  placeFileFilterNodeEpic
+} from "./file";
+
+import { placeTaskNode, placeTaskNodeEpic } from "./task";
+
+import {
   startSelection,
   continueSelection,
   endSelection,
@@ -35,13 +44,12 @@ import {
 } from "./selection";
 
 import {
-  placeFileSourceNode,
-  placeFileSourceNodeEpic,
-  placeFileFilterNode,
-  placeFileFilterNodeEpic
-} from "./file";
-
-import { placeTaskNode, placeTaskNodeEpic } from "./task";
+  startPan,
+  continuePan,
+  endPan,
+  viewboxEpic,
+  viewboxReducer
+} from "./viewbox";
 
 export const rootEpic = combineEpics(
   makeConnectionEpic,
@@ -51,7 +59,8 @@ export const rootEpic = combineEpics(
   placeTaskNodeEpic,
   selectionBoxEpic,
   selectionEpic,
-  clipboardEpic
+  clipboardEpic,
+  viewboxEpic
 );
 
 export const rootReducer = combineReducers({
@@ -59,7 +68,8 @@ export const rootReducer = combineReducers({
   connectionDrag: connectionDragReducer,
   selectionBox: selectionBoxReducer,
   selection: selectionReducer,
-  clipboard: clipboardReducer
+  clipboard: clipboardReducer,
+  viewbox: viewboxReducer
 });
 
 /* Transform a map of action builders to a map of redux dispatch functions
@@ -95,5 +105,8 @@ export const mapDispatchToProps = makeDispatchers({
   continueMoveSelection,
   endMoveSelection,
   copySelection,
-  pasteClipboard
+  pasteClipboard,
+  startPan,
+  continuePan,
+  endPan
 });
