@@ -1,7 +1,8 @@
 import React from "react";
 import { Line, Point } from "@vx/vx";
 import PropTypes from "prop-types";
-import { PointType, NodeType } from "../types";
+import { PointType } from "../../types/geometry";
+import { NodeType } from "../../types/graph";
 import * as V from "../../vector";
 
 // Sidebar component for working with a single nodes.

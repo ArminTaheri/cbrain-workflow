@@ -1,11 +1,8 @@
 import React from "react";
 import { Group } from "@vx/vx";
-import { NODE_TYPE } from "../types";
+import NODE_CONFIGS from "../../node";
 import DEFAULT_STYLE from "../style";
 import IOPin from "./IOPin";
-import FileSourceNode from "./FileSourceNode";
-import FileFilterNode from "./FileFilterNode";
-import TaskNode from "./TaskNode";
 
 const GraphNodeOverlay = ({
   scaleX,
@@ -93,44 +90,16 @@ const GraphNode = ({
     />
   );
   const { type, position, content } = node;
-  switch (type) {
-    case NODE_TYPE.FILE_SOURCE: {
-      return (
-        <FileSourceNode
-          renderOverlay={renderOverlay}
-          scaleX={scaleX}
-          scaleY={scaleY}
-          position={position}
-          source={content}
-        />
-      );
-    }
-    case NODE_TYPE.FILE_FILTER: {
-      return (
-        <FileFilterNode
-          renderOverlay={renderOverlay}
-          scaleX={scaleX}
-          scaleY={scaleY}
-          position={position}
-          filter={content}
-        />
-      );
-    }
-    case NODE_TYPE.TASK: {
-      return (
-        <TaskNode
-          renderOverlay={renderOverlay}
-          scaleX={scaleX}
-          scaleY={scaleY}
-          position={position}
-          task={content}
-        />
-      );
-    }
-    default: {
-      return null;
-    }
-  }
+  const NodeComponent = NODE_CONFIGS[type].component;
+  return (
+    <NodeComponent
+      renderOverlay={renderOverlay}
+      scaleX={scaleX}
+      scaleY={scaleY}
+      position={position}
+      content={content}
+    />
+  );
 };
 
 export default GraphNode;

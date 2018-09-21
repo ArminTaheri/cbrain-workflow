@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { LineType } from "../types";
+import { LineType } from "../../types/geometry";
 import * as V from "../../vector";
 
 // Sidebar component for working with a single nodes.

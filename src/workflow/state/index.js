@@ -7,6 +7,9 @@ import {
   continueConnection,
   makeConnectionEpic,
   connectionDragReducer,
+  placeNodeType,
+  editNodeContent,
+  nodeConfigEpic,
   startNodeMove,
   endNodeMove,
   continueNodeMove,
@@ -15,15 +18,6 @@ import {
   removeNode,
   graphReducer
 } from "./graph";
-
-import {
-  placeFileSourceNode,
-  placeFileSourceNodeEpic,
-  placeFileFilterNode,
-  placeFileFilterNodeEpic
-} from "./file";
-
-import { placeTaskNode, placeTaskNodeEpic } from "./task";
 
 import {
   startSelection,
@@ -54,9 +48,7 @@ import {
 export const rootEpic = combineEpics(
   makeConnectionEpic,
   moveNodesEpic,
-  placeFileSourceNodeEpic,
-  placeFileFilterNodeEpic,
-  placeTaskNodeEpic,
+  nodeConfigEpic,
   selectionBoxEpic,
   selectionEpic,
   clipboardEpic,
@@ -94,9 +86,8 @@ export const mapDispatchToProps = makeDispatchers({
   continueNodeMove,
   editNode,
   removeNode,
-  placeFileSourceNode,
-  placeFileFilterNode,
-  placeTaskNode,
+  placeNodeType,
+  editNodeContent,
   startSelection,
   continueSelection,
   endSelection,

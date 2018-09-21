@@ -9,6 +9,7 @@ import MultiSelectOperations, {
 } from "./MultiSelectOperations";
 import GraphLayer from "./graph/GraphLayer";
 import { mapDispatchToProps } from "../state";
+import { NODE_TYPE_KEYS } from "../node";
 
 const Workflow = ({
   activeAction,
@@ -21,8 +22,7 @@ const Workflow = ({
   continueNodeMove,
   editNode,
   removeNode,
-  placeFileFilterNode,
-  placeTaskNode,
+  placeNodeType,
   startSelection,
   continueSelection,
   endSelection,
@@ -79,7 +79,11 @@ const Workflow = ({
     [ACTIONS.PLACE_TASK.id]: {},
     [ACTIONS.PLACE_FILE_FILTER.id]: {
       graphPointerDown: position =>
-        placeFileFilterNode({ position, filter: { selection: [] } })
+        placeNodeType({
+          type: NODE_TYPE_KEYS.FILE_FILTER,
+          position,
+          filter: { selection: [] }
+        })
     },
     [ACTIONS.SELECT_MULTI.id]: {
       graphPointerDown: position => startSelection({ position }),

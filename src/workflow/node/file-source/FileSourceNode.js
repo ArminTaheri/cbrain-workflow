@@ -1,19 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Group } from "@vx/vx";
-import { PointType, FileFilterType } from "../types";
-import DEFAULT_STYLE from "../style";
+import { PointType } from "../../types/geometry";
+import { FileSourceType } from "./types";
+import DEFAULT_STYLE from "../../components/style";
 
 const Geometry = ({ title, width, height }) => (
   <Group>
-    <rect style={{ fill: "DodgerBlue" }} width={width} height={height} />
+    <rect style={{ fill: "orange" }} width={width} height={height} />
     <text style={DEFAULT_STYLE.textStyle.nodeName} x={width / 7} y={height / 2}>
       {title}
     </text>
   </Group>
 );
 
-const FileFilterNode = ({
+const FileSourceNode = ({
   renderOverlay,
   scaleX,
   scaleY,
@@ -24,16 +25,18 @@ const FileFilterNode = ({
   const Overlay = renderOverlay;
   return (
     <Group left={scaleX(position.x)} top={scaleY(position.y)}>
-      <Geometry title={"Filter"} width={width} height={height} />
+      <Geometry title={"Source"} width={width} height={height} />
       {Overlay && <Overlay width={width} height={height} />}
     </Group>
   );
 };
 
-FileFilterNode.propTypes = {
+FileSourceNode.propTypes = {
   renderOverlay: PropTypes.any,
+  scaleX: PropTypes.func.isRequired,
+  scaleY: PropTypes.func.isRequired,
   position: PointType.isRequired,
-  filter: FileFilterType.isRequired
+  source: FileSourceType.isRequired
 };
 
-export default FileFilterNode;
+export default FileSourceNode;

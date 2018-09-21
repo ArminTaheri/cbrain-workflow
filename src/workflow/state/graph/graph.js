@@ -1,21 +1,13 @@
 import * as R from "ramda";
 import { createAction } from "redux-actions";
-import uuid from "uuid/v4";
 import { makeConnection } from "./connection";
+import makeID from "../makeID";
 
 export const EMPTY_GRAPH = () => ({
   name: "New Workflow",
   nodes: {},
   connections: {}
 });
-
-export const makeID = map => {
-  let id;
-  do {
-    id = uuid();
-  } while (map[id]);
-  return id;
-};
 
 export const ADD_NODE = "ADD_NODE";
 export const addNode = createAction(ADD_NODE);

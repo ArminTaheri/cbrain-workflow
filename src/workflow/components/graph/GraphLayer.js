@@ -4,7 +4,7 @@ import { Group } from "@vx/vx";
 import { scaleLinear } from "d3-scale";
 import withResizeObserverProps from "@hocs/with-resize-observer-props";
 import PropTypes from "prop-types";
-import { GraphType } from "../types";
+import { GraphType } from "../../types/graph";
 import DEFAULT_STYLE from "../style";
 import * as V from "../../vector";
 import { INITIAL_VIEWBOX } from "../../state/viewbox";

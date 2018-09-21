@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { PointType, TaskType } from "../types";
+import { PointType } from "../../types/geometry";
+import { TaskType } from "./types";
 
 const TaskNode = ({ renderOverlay, position, task }) => null;
 
