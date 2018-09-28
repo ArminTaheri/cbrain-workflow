@@ -17,10 +17,7 @@ class App extends Component {
     const epicMiddleware = createEpicMiddleware();
     const logger = createLogger();
 
-    this.store = createStore(
-      rootReducer,
-      applyMiddleware(epicMiddleware, logger)
-    );
+    this.store = createStore(rootReducer, applyMiddleware(epicMiddleware));
 
     epicMiddleware.run(rootEpic);
 

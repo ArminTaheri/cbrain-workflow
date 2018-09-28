@@ -1,6 +1,5 @@
 import * as R from "ramda";
 import { createAction } from "redux-actions";
-import { makeConnection } from "./connection";
 import makeID from "../makeID";
 
 export const EMPTY_GRAPH = () => ({
@@ -88,12 +87,12 @@ export const graphReducer = (state = EMPTY_GRAPH(), action) => {
       const newConnections = subgraph.connections.reduce(
         (connections, subConnection) => {
           const id = makeID(connections);
-          const connection = makeConnection({
+          const connection = {
             parentID: nodeIndexToID[subConnection.parentID].id,
             childID: nodeIndexToID[subConnection.childID].id,
             inputOffset: subConnection.inputOffset,
             outputOffset: subConnection.outputOffset
-          });
+          };
 
           return R.assoc(id, R.assoc("id", id, connection), connections);
         },

@@ -16,6 +16,8 @@ const Workflow = ({
   setActiveAction,
   startConnectionOutput,
   endConnectionInput,
+  startConnectionInput,
+  endConnectionOutput,
   continueConnection,
   startNodeMove,
   endNodeMove,
@@ -38,6 +40,14 @@ const Workflow = ({
   ...graphLayerProps
 }) => {
   const { connectionDrag } = graphLayerProps;
+  const resetInteraction = () => {
+    setTimeout(() => {
+      endNodeMove();
+      endConnectionInput();
+      endConnectionOutput();
+      endSelection();
+    }, 20);
+  };
   const HANDLER_CONFIGS = {
     [ACTIONS.NONE.id]: {},
     [ACTIONS.PAN.id]: {
@@ -55,24 +65,27 @@ const Workflow = ({
     },
     [ACTIONS.CONNECT.id]: {
       outPinPointerDown: (node, offset) => {
-        if (connectionDrag) {
-          // startConnectionInput({ childID: node.id, inputOffset: offset })
-          return;
-        }
         startConnectionOutput({ parentID: node.id, outputOffset: offset });
       },
-      inPinPointerUp: (node, inputOffset) => {
+      inPinPointerUp: (node, offset) => {
         if (connectionDrag) {
-          endConnectionInput({ childID: node.id, inputOffset });
+          endConnectionInput({ childID: node.id, inputOffset: offset });
           return;
         }
-        // endConnectionOutput({ parentID: node.id, outputOffset: offset })
+        resetInteraction();
+      },
+      inPinPointerDown: (node, offset) => {
+        startConnectionInput({ childID: node.id, inputOffset: offset });
+      },
+      outPinPointerUp: (node, offset) => {
+        if (connectionDrag) {
+          endConnectionOutput({ parentID: node.id, outputOffset: offset });
+          return;
+        }
+        resetInteraction();
       },
       graphPointerUp: () => {
-        setTimeout(() => {
-          endConnectionInput();
-          // endConnectionOutput();
-        }, 20);
+        resetInteraction();
       },
       graphPointerMove: position => continueConnection({ position })
     },
@@ -98,12 +111,6 @@ const Workflow = ({
     [ACTIONS.PASTE.id]: {
       graphPointerUp: position => pasteClipboard({ position })
     }
-  };
-  const resetInteraction = () => {
-    endNodeMove();
-    endConnectionInput();
-    // endConnectionOutput();
-    endSelection();
   };
   const handlers = HANDLER_CONFIGS[activeAction.id];
   return (

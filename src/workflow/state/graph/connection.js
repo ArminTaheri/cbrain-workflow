@@ -1,22 +1,10 @@
 import * as R from "ramda";
-import { of } from "rxjs";
+import { from } from "rxjs";
 import * as Rx from "rxjs/operators";
 import { merge } from "rxjs";
 import { ofType } from "redux-observable";
 import { createAction } from "redux-actions";
-import { addConnection } from "./graph";
-
-export const makeConnection = ({
-  parentID,
-  childID,
-  inputOffset,
-  outputOffset
-}) => ({
-  parentID,
-  childID,
-  inputOffset,
-  outputOffset
-});
+import { addConnection, removeConnection } from "./graph";
 
 export const START_CONNECTION_OUTPUT = "START_CONNECTION_OUTPUT";
 export const startConnectionOutput = createAction(START_CONNECTION_OUTPUT);
@@ -63,7 +51,7 @@ export const makeConnectionEpic = (actions$, state$) => {
       )
     )
   );
-  /* const startConnectionInput$ = actions$.pipe(
+  const startConnectionInput$ = actions$.pipe(
     ofType(START_CONNECTION_INPUT),
     Rx.map(
       R.pipe(
@@ -71,16 +59,16 @@ export const makeConnectionEpic = (actions$, state$) => {
         extractChildParams
       )
     )
-  ); */
-  /* const endConnectionOutput$ = actions$.pipe(
+  );
+  const endConnectionOutput$ = actions$.pipe(
     ofType(END_CONNECTION_OUTPUT),
     Rx.map(
       R.pipe(
         R.prop("payload"),
-        extractParentParams
+        R.unless(R.isNil, extractParentParams)
       )
     )
-  ); */
+  );
   const continueConnection$ = actions$.pipe(
     ofType(CONTINUE_CONNECTION),
     Rx.map(
@@ -90,34 +78,66 @@ export const makeConnectionEpic = (actions$, state$) => {
       )
     )
   );
-  const addConnectionO2I$ = startConnectionOutput$.pipe(
+  const connectionO2I$ = startConnectionOutput$.pipe(
     Rx.combineLatest(endConnectionInput$),
     Rx.map(([start, end]) => {
       if (!end) {
         return null;
       }
-      return makeConnection({
+
+      return {
         parentID: start.parentID,
         outputOffset: start.outputOffset,
         childID: end.childID,
         inputOffset: end.inputOffset
-      });
-    }),
-    Rx.filter(
-      R.compose(
-        R.not,
-        R.isNil
-      )
-    )
+      };
+    })
   );
-  // const addConnectionI2O$ = of();
-  const addConnection$ = merge(addConnectionO2I$ /*, addConnectionI2O$ */).pipe(
+  const connectionI2O$ = startConnectionInput$.pipe(
+    Rx.combineLatest(endConnectionOutput$),
+    Rx.map(([start, end]) => {
+      if (!end) {
+        return null;
+      }
+      return {
+        parentID: end.parentID,
+        outputOffset: end.outputOffset,
+        childID: start.childID,
+        inputOffset: start.inputOffset
+      };
+    })
+  );
+  const removeConflicts$ = merge(connectionO2I$, startConnectionInput$).pipe(
+    Rx.filter(R.complement(R.isNil)),
+    Rx.withLatestFrom(state$),
+    Rx.concatMap(([connection, state]) => {
+      const isConflict = graphConnection => {
+        const [c1, c2] = R.project(
+          ["parentID", "outputOffset", "childID", "inputOffset"],
+          [graphConnection, connection]
+        );
+        return (
+          graphConnection.childID === connection.childID && !R.equals(c1, c2)
+        );
+      };
+      const removeConflicts = R.values(state.graph.connections)
+        .filter(isConflict)
+        .map(
+          R.compose(
+            removeConnection,
+            R.prop("id")
+          )
+        );
+      return from(removeConflicts);
+    })
+  );
+  const addConnection$ = merge(connectionO2I$, connectionI2O$).pipe(
+    Rx.filter(R.complement(R.isNil)),
     Rx.map(addConnection)
   );
-  const removeConnection$ = of();
   const endDrag$ = merge(
-    endConnectionInput$.pipe(Rx.mapTo(setDrag()))
-    // endConnectionOutput$.pipe(Rx.mapTo(setDrag()))
+    endConnectionInput$.pipe(Rx.mapTo(setDrag())),
+    endConnectionOutput$.pipe(Rx.mapTo(setDrag()))
   );
   const makeDragStream = start =>
     continueConnection$.pipe(
@@ -132,18 +152,18 @@ export const makeConnectionEpic = (actions$, state$) => {
         offset: start.outputOffset
       })),
       Rx.switchMap(makeDragStream)
-    ) /*,
+    ),
     startConnectionInput$.pipe(
       Rx.withLatestFrom(state$),
       Rx.map(([start, state]) => ({
-        startNode: state.graph.nodes[start.parentID],
+        startNode: state.graph.nodes[start.childID],
         offset: start.inputOffset
       })),
       Rx.switchMap(makeDragStream)
-    ) */
+    )
   );
 
-  return merge(addConnection$, removeConnection$, continueDrag$, endDrag$);
+  return merge(addConnection$, continueDrag$, endDrag$, removeConflicts$);
 };
 
 export const connectionDragReducer = (state = null, action) => {

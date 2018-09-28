@@ -4,6 +4,8 @@ import { combineEpics } from "redux-observable";
 import {
   startConnectionOutput,
   endConnectionInput,
+  startConnectionInput,
+  endConnectionOutput,
   continueConnection,
   makeConnectionEpic,
   connectionDragReducer,
@@ -80,6 +82,8 @@ const makeDispatchers = actionBuilders => dispatch =>
 export const mapDispatchToProps = makeDispatchers({
   startConnectionOutput,
   endConnectionInput,
+  startConnectionInput,
+  endConnectionOutput,
   continueConnection,
   startNodeMove,
   endNodeMove,
