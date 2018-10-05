@@ -1,5 +1,6 @@
 import React from "react";
-import { ListGroup, ListGroupItem } from "react-bootstrap";
+import { Row, Col, ListGroup, ListGroupItem } from "react-bootstrap";
+import TaskSelectMenu from "./TaskSelectMenu";
 
 export const ACTIONS = {
   NONE: { id: "NONE", name: "None" },
@@ -8,7 +9,11 @@ export const ACTIONS = {
   REMOVE_NODE: { id: "REMOVE_NODE", name: "Remove nodes" },
   CONNECT: { id: "CONNECT", name: "Connect nodes" },
   PLACE_FILE_FILTER: { id: "PLACE_FILE_FILTER", name: "Place file filters" },
-  PLACE_TASK: { id: "PLACE_TASK", name: "Place tasks", disabled: true },
+  PLACE_TASK: {
+    id: "PLACE_TASK",
+    name: "Place tasks",
+    menu: TaskSelectMenu
+  },
   SELECT_MULTI: { id: "SELECT_MULTI", name: "Select multiple" },
   MOVE_MULTI: { id: "MOVE_MULTI", name: "Move selected" },
   PASTE: { id: "PASTE", name: "Paste clipboard" }
@@ -27,7 +32,7 @@ const ACTIONS_LIST = [
   ACTIONS.PASTE
 ];
 
-const ActionsMenu = ({ activeAction, setActiveAction }) => (
+const ActionsMenu = ({ activeAction, setActiveAction, subMenuProps = {} }) => (
   <div>
     <h4>Actions</h4>
     <ListGroup>
@@ -38,7 +43,17 @@ const ActionsMenu = ({ activeAction, setActiveAction }) => (
           disabled={action.disabled}
           onClick={() => !action.disabled && setActiveAction(action)}
         >
-          {action.name}
+          <Row>
+            <Col xs={12}>{action.name}</Col>
+          </Row>
+          {action.menu &&
+            subMenuProps[action.id] && (
+              <Row>
+                <Col xs={12} onClick={e => e.stopPropagation()}>
+                  {React.createElement(action.menu, subMenuProps[action.id])}
+                </Col>
+              </Row>
+            )}
         </ListGroupItem>
       ))}
     </ListGroup>

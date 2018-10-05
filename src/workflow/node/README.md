@@ -14,9 +14,9 @@ export default {
   component: react component to render the visual representation of a node.
   create: a function that takes the payload of the "place node" action and returns an object of the form:
     {
-      content: task,
-      inputs: task.inputs,
-      outputs: task.outputs
+      content: {...},
+      inputs: [{...}, {...}],
+      outputs: [{...}, {...}]
     }
   edit: Function that takes the payload of the "edit node" action and returns a new node object
   invoke: Function that emits an object representing a backend operation in a chain of commands.

@@ -9,11 +9,14 @@ import MultiSelectOperations, {
 } from "./MultiSelectOperations";
 import GraphLayer from "./graph/GraphLayer";
 import { mapDispatchToProps } from "../state";
-import { NODE_TYPE_KEYS } from "../node";
+import { NODE_TYPES } from "../node";
 
 const Workflow = ({
   activeAction,
   setActiveAction,
+  taskDescriptors = [],
+  selectedTask = null,
+  setSelectedTask,
   startConnectionOutput,
   endConnectionInput,
   startConnectionInput,
@@ -89,11 +92,19 @@ const Workflow = ({
       },
       graphPointerMove: position => continueConnection({ position })
     },
-    [ACTIONS.PLACE_TASK.id]: {},
+    [ACTIONS.PLACE_TASK.id]: {
+      graphPointerDown: position =>
+        selectedTask &&
+        placeNodeType({
+          type: NODE_TYPES.TASK,
+          position,
+          task: selectedTask
+        })
+    },
     [ACTIONS.PLACE_FILE_FILTER.id]: {
       graphPointerDown: position =>
         placeNodeType({
-          type: NODE_TYPE_KEYS.FILE_FILTER,
+          type: NODE_TYPES.FILE_FILTER,
           position,
           filter: { selection: [] }
         })
@@ -124,6 +135,13 @@ const Workflow = ({
                 setActiveAction={action => {
                   resetInteraction();
                   setActiveAction(action);
+                }}
+                subMenuProps={{
+                  [ACTIONS.PLACE_TASK.id]: {
+                    tasks: taskDescriptors,
+                    selectedTask,
+                    setSelectedTask
+                  }
                 }}
               />
             </Col>
@@ -161,6 +179,7 @@ const Workflow = ({
 
 export default compose(
   withState("activeAction", "setActiveAction", ACTIONS.NONE),
+  withState("selectedTask", "setSelectedTask", null),
   connect(
     R.identity,
     mapDispatchToProps

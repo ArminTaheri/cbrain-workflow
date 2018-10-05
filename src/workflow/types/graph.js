@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import { PointType } from "./geometry";
-import { NODE_TYPES, NODE_CONTENT_TYPES } from "../node";
 
 export const NodeIDType = PropTypes.string;
 
@@ -15,8 +14,8 @@ export const NodeOutputType = PropTypes.shape({
 export const NodeType = PropTypes.shape({
   id: NodeIDType,
   position: PointType,
-  type: PropTypes.oneOf(NODE_TYPES),
-  content: PropTypes.oneOfType(NODE_CONTENT_TYPES),
+  type: PropTypes.string,
+  content: PropTypes.object,
   inputs: PropTypes.arrayOf(NodeInputType),
   outputs: PropTypes.arrayOf(NodeOutputType)
 });

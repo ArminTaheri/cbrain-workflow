@@ -47,6 +47,8 @@ import {
   viewboxReducer
 } from "./viewbox";
 
+import { addTaskDescriptor, taskDescriptorsReducer } from "./task-descriptors";
+
 export const rootEpic = combineEpics(
   makeConnectionEpic,
   moveNodesEpic,
@@ -58,6 +60,7 @@ export const rootEpic = combineEpics(
 );
 
 export const rootReducer = combineReducers({
+  taskDescriptors: taskDescriptorsReducer,
   graph: graphReducer,
   connectionDrag: connectionDragReducer,
   selectionBox: selectionBoxReducer,
@@ -103,5 +106,6 @@ export const mapDispatchToProps = makeDispatchers({
   pasteClipboard,
   startPan,
   continuePan,
-  endPan
+  endPan,
+  addTaskDescriptor
 });

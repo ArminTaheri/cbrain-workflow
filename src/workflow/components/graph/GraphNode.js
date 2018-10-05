@@ -93,6 +93,7 @@ const GraphNode = ({
   const NodeComponent = NODE_CONFIGS[type].component;
   return (
     <NodeComponent
+      node={node}
       renderOverlay={renderOverlay}
       scaleX={scaleX}
       scaleY={scaleY}
