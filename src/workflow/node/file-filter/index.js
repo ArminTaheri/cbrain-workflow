@@ -2,7 +2,7 @@ import * as R from "ramda";
 import React from "react";
 import FileFilterNode from "./FileFilterNode";
 import { FileFilterType } from "./types";
-import { editNode } from "../../state/graph";
+import { editNode } from "../../store/state/workflow";
 
 export default {
   contentType: FileFilterType,

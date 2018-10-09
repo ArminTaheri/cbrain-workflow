@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import { GraphType } from "../../types/graph";
 import DEFAULT_STYLE from "../style";
 import * as V from "../../vector";
-import { INITIAL_VIEWBOX } from "../../state/viewbox";
+import { INITIAL_VIEWBOX } from "../../store/state/viewbox";
 import GraphNode from "./GraphNode";
 import GraphConnection from "./GraphConnection";
 import ConnectionDrag from "./ConnectionDrag";

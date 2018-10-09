@@ -4,12 +4,12 @@ import { Provider } from "react-redux";
 import { createEpicMiddleware } from "redux-observable";
 import logger from "redux-logger";
 import "resize-observer-polyfill/dist/ResizeObserver.global";
-import { rootReducer, rootEpic } from "./workflow/state";
-import { placeNodeType } from "./workflow/state/graph";
-import { addTaskDescriptor } from "./workflow/state/task-descriptors";
+import { rootReducer, rootEpic } from "./workflow/store";
+import { placeNodeType } from "./workflow/store/logic/configure-nodes";
+import { addTaskDescriptor } from "./workflow/store/state/task-descriptors";
 import { NODE_TYPES } from "./workflow/node";
-import Workflow from "./workflow/components/Workflow";
-import "./css/bootstrap.min.css";
+import Workflow from "./workflow/views/Workflow";
+import "./assets/css/bootstrap.min.css";
 import "./App.css";
 
 class App extends Component {

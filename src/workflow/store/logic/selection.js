@@ -3,8 +3,18 @@ import * as Rx from "rxjs/operators";
 import { merge, from } from "rxjs";
 import { ofType } from "redux-observable";
 import { createAction } from "redux-actions";
-import * as V from "../vector";
-import { REMOVE_NODE, removeNode, editNode, patchSubgraph } from "./graph";
+import * as V from "../../vector";
+import {
+  REMOVE_NODE,
+  removeNode,
+  editNode,
+  patchSubgraph
+} from "../state/workflow";
+import {
+  setSelectionBox,
+  setSelection,
+  setClipboard
+} from "../state/selection";
 
 export const START_SELECTION = "START_SELECTION";
 export const startSelection = createAction(START_SELECTION);
@@ -15,13 +25,7 @@ export const continueSelection = createAction(CONTINUE_SELECTION);
 export const END_SELECTION = "END_SELECTION";
 export const endSelection = createAction(END_SELECTION);
 
-export const SET_SELECTION_BOX = "SET_SELECTION_BOX";
-export const setSelectionBox = createAction(SET_SELECTION_BOX);
-
-export const SET_SELECTION = "SET_SELECTION";
-export const setSelection = createAction(SET_SELECTION);
-
-export const selectionBoxEpic = (action$, state$) => {
+export const createSelectionBoxEpic = fromState => (action$, state$) => {
   const startSelection$ = action$.pipe(
     ofType(START_SELECTION),
     Rx.filter(R.has("payload")),
@@ -54,7 +58,7 @@ export const selectionBoxEpic = (action$, state$) => {
   const setSelection$ = selectionBox$.pipe(
     Rx.withLatestFrom(state$),
     Rx.map(([box, state]) =>
-      R.values(state.graph.nodes)
+      R.values(fromState(state).nodes)
         .filter(node => V.boxContains(box, node.position))
         .map(R.prop("id"))
     ),
@@ -64,15 +68,8 @@ export const selectionBoxEpic = (action$, state$) => {
   return merge(setSelectionBox$, setSelection$);
 };
 
-export const selectionBoxReducer = (state = null, action) => {
-  switch (action.type) {
-    case SET_SELECTION_BOX: {
-      return action.payload || null;
-    }
-    default:
-      return state;
-  }
-};
+export const REMOVE_SELECTION = "REMOVE_SELECTION";
+export const removeSelection = createAction(REMOVE_SELECTION);
 
 export const START_MOVE_SELECTION = "START_MOVE_SELECTION";
 export const startMoveSelection = createAction(START_MOVE_SELECTION);
@@ -83,10 +80,7 @@ export const continueMoveSelection = createAction(CONTINUE_MOVE_SELECTION);
 export const END_MOVE_SELECTION = "END_MOVE_SELECTION";
 export const endMoveSelection = createAction(END_MOVE_SELECTION);
 
-export const REMOVE_SELECTION = "REMOVE_SELECTION";
-export const removeSelection = createAction(REMOVE_SELECTION);
-
-export const selectionEpic = (action$, state$) => {
+export const createSelectionEpic = fromState => (action$, state$) => {
   const startMoveSelection$ = action$.pipe(
     ofType(START_MOVE_SELECTION),
     Rx.filter(R.has("payload")),
@@ -109,7 +103,10 @@ export const selectionEpic = (action$, state$) => {
     Rx.map(([start, state]) => ({
       start,
       nodePositions: R.fromPairs(
-        state.selection.map(id => [id, state.graph.nodes[id].position])
+        fromState(state).selection.map(id => [
+          id,
+          fromState(state).graph.nodes[id].position
+        ])
       )
     })),
     Rx.switchMap(({ start, nodePositions }) =>
@@ -127,8 +124,8 @@ export const selectionEpic = (action$, state$) => {
     Rx.withLatestFrom(state$),
     Rx.mergeMap(([dragState, state]) =>
       from(
-        state.selection.map(id => {
-          const node = state.graph.nodes[id];
+        fromState(state).selection.map(id => {
+          const node = fromState(state).graph.nodes[id];
 
           return editNode(
             R.assoc(
@@ -146,7 +143,9 @@ export const selectionEpic = (action$, state$) => {
 
   const removeNodes$ = removeSelection$.pipe(
     Rx.withLatestFrom(state$),
-    Rx.mergeMap(([_, state]) => from(state.selection.map(id => removeNode(id))))
+    Rx.mergeMap(([_, state]) =>
+      from(fromState(state).selection.map(id => removeNode(id)))
+    )
   );
 
   const setSelection$ = merge(
@@ -155,7 +154,7 @@ export const selectionEpic = (action$, state$) => {
       ofType(REMOVE_NODE),
       Rx.withLatestFrom(state$),
       Rx.map(([id, state]) =>
-        setSelection(R.reject(R.equals(id), state.selection))
+        setSelection(R.reject(R.equals(id), fromState(state).selection))
       )
     )
   );
@@ -163,31 +162,20 @@ export const selectionEpic = (action$, state$) => {
   return merge(removeNodes$, setSelection$, moveSelection$);
 };
 
-export const selectionReducer = (state = [], action) => {
-  switch (action.type) {
-    case SET_SELECTION: {
-      return action.payload instanceof Array ? action.payload : state;
-    }
-    default:
-      return state;
-  }
-};
-
 export const COPY_SELECTION = "COPY_SELECTION";
 export const copySelection = createAction(COPY_SELECTION);
-
-export const SET_CLIPBOARD = "SET_CLIPBOARD";
-export const setClipboard = createAction(SET_CLIPBOARD);
 
 export const PASTE_CLIPBOARD = "PASTE_CLIPBOARD";
 export const pasteClipboard = createAction(PASTE_CLIPBOARD);
 
-export const clipboardEpic = (action$, state$) => {
+export const createClipboardEpic = fromState => (action$, state$) => {
   const copySubgraph$ = action$.pipe(
     ofType(COPY_SELECTION),
     Rx.withLatestFrom(state$),
     Rx.map(([_, state]) => {
-      const selectedNodes = state.selection.map(id => state.graph.nodes[id]);
+      const selectedNodes = fromState(state).selection.map(
+        id => fromState(state).graph.nodes[id]
+      );
       const minSelectedPosition = V.min(
         ...selectedNodes.map(R.prop("position"))
       );
@@ -196,7 +184,7 @@ export const clipboardEpic = (action$, state$) => {
 
         return R.assoc("position", offset, node);
       });
-      const connections = R.values(state.graph.connections).reduce(
+      const connections = R.values(fromState(state).graph.connections).reduce(
         (conns, connection) => {
           let { parentID, childID, ...rest } = connection;
 
@@ -232,24 +220,11 @@ export const clipboardEpic = (action$, state$) => {
         R.map(node =>
           R.assoc("position", V.add(node.position, position), node)
         ),
-        R.tap(x => console.warn(x))(state.clipboard)
+        R.tap(x => console.warn(x))(fromState(state).clipboard)
       )
     ),
     Rx.map(patchSubgraph)
   );
 
   return merge(copySubgraph$, patchSubgraph$);
-};
-
-export const clipboardReducer = (
-  state = { node: [], connections: [] },
-  action
-) => {
-  switch (action.type) {
-    case SET_CLIPBOARD: {
-      return action.payload ? action.payload : state;
-    }
-    default:
-      return state;
-  }
 };

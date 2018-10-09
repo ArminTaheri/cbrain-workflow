@@ -3,15 +3,16 @@ import { compose, withState } from "recompose";
 import { Grid, Row, Col } from "react-bootstrap";
 import * as R from "ramda";
 import { connect } from "react-redux";
-import ActionsMenu, { ACTIONS } from "./ActionsMenu";
+import ActionsMenu, { ACTIONS } from "../components/ActionsMenu";
 import MultiSelectOperations, {
   MULTI_SELECT_OPERATIONS
-} from "./MultiSelectOperations";
-import GraphLayer from "./graph/GraphLayer";
-import { mapDispatchToProps } from "../state";
+} from "../components/MultiSelectOperations";
+import GraphLayer from "../components/graph/GraphLayer";
+import { mapDispatchToProps } from "../store";
 import { NODE_TYPES } from "../node";
 
 const Workflow = ({
+  workflow,
   activeAction,
   setActiveAction,
   taskDescriptors = [],
@@ -170,7 +171,11 @@ const Workflow = ({
         </Col>
         {/* TODO: Remove hardcoded height */}
         <Col md={10} style={{ height: "800px" }}>
-          <GraphLayer {...graphLayerProps} {...handlers} />
+          <GraphLayer
+            graph={workflow.graph}
+            {...graphLayerProps}
+            {...handlers}
+          />
         </Col>
       </Row>
     </Grid>

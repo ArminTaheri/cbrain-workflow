@@ -2,7 +2,8 @@ import * as R from "ramda";
 import * as Rx from "rxjs/operators";
 import { ofType } from "redux-observable";
 import { createAction } from "redux-actions";
-import * as V from "../vector";
+import * as V from "../../vector";
+import { setViewbox } from "../state/viewbox";
 
 export const START_PAN = "START_PAN";
 export const startPan = createAction(START_PAN);
@@ -13,10 +14,7 @@ export const continuePan = createAction(CONTINUE_PAN);
 export const END_PAN = "END_PAN";
 export const endPan = createAction(END_PAN);
 
-export const SET_VIEWBOX = "SET_VIEWBOX";
-export const setViewbox = createAction(SET_VIEWBOX);
-
-export const viewboxEpic = (action$, state$) => {
+export const createViewboxEpic = fromState => (action$, state$) => {
   const startPan$ = action$.pipe(
     ofType(START_PAN),
     Rx.filter(R.has("payload")),
@@ -36,17 +34,16 @@ export const viewboxEpic = (action$, state$) => {
     Rx.withLatestFrom(state$),
     Rx.map(([start, state]) => [
       start,
-      state,
-      R.path(["viewbox", "position"], state)
+      fromState(state),
+      R.prop("position", fromState(state))
     ]),
     Rx.switchMap(([start, state, viewboxPosition]) =>
       continuePan$.pipe(
-        Rx.tap(x => console.warn(x)),
         Rx.map(current =>
           R.assoc(
             "position",
             V.add(viewboxPosition, V.sub(start, current)),
-            state.viewbox
+            fromState(state)
           )
         ),
         Rx.takeUntil(endPan$)
@@ -56,16 +53,4 @@ export const viewboxEpic = (action$, state$) => {
   );
 
   return setViewbox$;
-};
-
-export const INITIAL_VIEWBOX = { position: V.zero(), zoom: 1 };
-
-export const viewboxReducer = (state = INITIAL_VIEWBOX, action) => {
-  switch (action.type) {
-    case SET_VIEWBOX: {
-      return action.payload ? action.payload : state;
-    }
-    default:
-      return state;
-  }
 };

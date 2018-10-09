@@ -7,67 +7,93 @@ import {
   startConnectionInput,
   endConnectionOutput,
   continueConnection,
-  makeConnectionEpic,
-  connectionDragReducer,
+  createMakeConnectionEpic
+} from "./logic/drag-connections";
+
+import { connectionDragReducer } from "./state/connection-drag";
+
+import {
   placeNodeType,
   editNodeContent,
-  nodeConfigEpic,
+  createConfigureNodesEpic
+} from "./logic/configure-nodes";
+
+import {
   startNodeMove,
   endNodeMove,
   continueNodeMove,
-  moveNodesEpic,
-  editNode,
-  removeNode,
-  graphReducer
-} from "./graph";
+  createMoveNodesEpic
+} from "./logic/drag-nodes";
+
+import { removeNode, editNode, workflowReducer } from "./state/workflow";
 
 import {
   startSelection,
   continueSelection,
   endSelection,
-  selectionBoxEpic,
-  selectionBoxReducer,
+  createSelectionBoxEpic,
   removeSelection,
   startMoveSelection,
   continueMoveSelection,
   endMoveSelection,
-  selectionEpic,
-  selectionReducer,
+  createSelectionEpic,
   copySelection,
   pasteClipboard,
-  clipboardEpic,
+  createClipboardEpic
+} from "./logic/selection";
+
+import {
+  selectionBoxReducer,
+  selectionReducer,
   clipboardReducer
-} from "./selection";
+} from "./state/selection";
 
 import {
   startPan,
   continuePan,
   endPan,
-  viewboxEpic,
-  viewboxReducer
-} from "./viewbox";
+  createViewboxEpic
+} from "./logic/viewbox";
 
-import { addTaskDescriptor, taskDescriptorsReducer } from "./task-descriptors";
+import { viewboxReducer } from "./state/viewbox";
 
-export const rootEpic = combineEpics(
-  makeConnectionEpic,
-  moveNodesEpic,
-  nodeConfigEpic,
-  selectionBoxEpic,
-  selectionEpic,
-  clipboardEpic,
-  viewboxEpic
-);
+import {
+  addTaskDescriptor,
+  taskDescriptorsReducer
+} from "./state/task-descriptors";
 
 export const rootReducer = combineReducers({
   taskDescriptors: taskDescriptorsReducer,
-  graph: graphReducer,
+  workflow: workflowReducer,
   connectionDrag: connectionDragReducer,
   selectionBox: selectionBoxReducer,
   selection: selectionReducer,
   clipboard: clipboardReducer,
   viewbox: viewboxReducer
 });
+
+const getActiveWorkflowGraph = state => state.workflow.graph;
+
+export const rootEpic = combineEpics(
+  createMakeConnectionEpic(getActiveWorkflowGraph),
+  createMoveNodesEpic(),
+  createConfigureNodesEpic(),
+  createSelectionBoxEpic(getActiveWorkflowGraph),
+  createSelectionEpic(
+    R.applySpec({
+      graph: getActiveWorkflowGraph,
+      selection: R.prop("selection")
+    })
+  ),
+  createClipboardEpic(
+    R.applySpec({
+      graph: getActiveWorkflowGraph,
+      clipboard: R.prop("clipboard"),
+      selection: R.prop("selection")
+    })
+  ),
+  createViewboxEpic(R.prop("viewbox"))
+);
 
 /* Transform a map of action builders to a map of redux dispatch functions
  * after being given a dispatch function.

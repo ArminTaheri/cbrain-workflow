@@ -4,7 +4,8 @@ import * as Rx from "rxjs/operators";
 import { merge } from "rxjs";
 import { ofType } from "redux-observable";
 import { createAction } from "redux-actions";
-import { addConnection, removeConnection } from "./graph";
+import { addConnection, removeConnection } from "../state/workflow";
+import { setDrag } from "../state/connection-drag";
 
 export const START_CONNECTION_OUTPUT = "START_CONNECTION_OUTPUT";
 export const startConnectionOutput = createAction(START_CONNECTION_OUTPUT);
@@ -21,10 +22,7 @@ export const endConnectionOutput = createAction(END_CONNECTION_OUTPUT);
 export const CONTINUE_CONNECTION = "CONTINUE_CONNECTION";
 export const continueConnection = createAction(CONTINUE_CONNECTION);
 
-export const SET_DRAG = "SET_DRAG";
-export const setDrag = createAction(SET_DRAG);
-
-export const makeConnectionEpic = (actions$, state$) => {
+export const createMakeConnectionEpic = fromState => (actions$, state$) => {
   const extractParentParams = ({ parentID, outputOffset }) => ({
     parentID,
     outputOffset
@@ -120,7 +118,7 @@ export const makeConnectionEpic = (actions$, state$) => {
           graphConnection.childID === connection.childID && !R.equals(c1, c2)
         );
       };
-      const removeConflicts = R.values(state.graph.connections)
+      const removeConflicts = R.values(fromState(state).connections)
         .filter(isConflict)
         .map(
           R.compose(
@@ -148,7 +146,7 @@ export const makeConnectionEpic = (actions$, state$) => {
     startConnectionOutput$.pipe(
       Rx.withLatestFrom(state$),
       Rx.map(([start, state]) => ({
-        startNode: state.graph.nodes[start.parentID],
+        startNode: fromState(state).nodes[start.parentID],
         offset: start.outputOffset
       })),
       Rx.switchMap(makeDragStream)
@@ -156,7 +154,7 @@ export const makeConnectionEpic = (actions$, state$) => {
     startConnectionInput$.pipe(
       Rx.withLatestFrom(state$),
       Rx.map(([start, state]) => ({
-        startNode: state.graph.nodes[start.childID],
+        startNode: fromState(state).nodes[start.childID],
         offset: start.inputOffset
       })),
       Rx.switchMap(makeDragStream)
@@ -164,11 +162,4 @@ export const makeConnectionEpic = (actions$, state$) => {
   );
 
   return merge(addConnection$, continueDrag$, endDrag$, removeConflicts$);
-};
-
-export const connectionDragReducer = (state = null, action) => {
-  if (action.type === SET_DRAG) {
-    return action.payload || null;
-  }
-  return state;
 };
