@@ -1,6 +1,7 @@
 import React from "react";
 import { Row, Col, ListGroup, ListGroupItem } from "react-bootstrap";
 import TaskSelectMenu from "./TaskSelectMenu";
+import WorkflowSelectMenu from "./WorkflowSelectMenu";
 
 export const ACTIONS = {
   NONE: { id: "NONE", name: "None" },
@@ -14,10 +15,18 @@ export const ACTIONS = {
     name: "Place tasks",
     menu: TaskSelectMenu
   },
+  PLACE_INPUT_PIN: {
+    id: "PLACE_INPUT_PIN",
+    name: "Place input pin"
+  },
+  PLACE_OUTPUT_PIN: {
+    id: "PLACE_OUTPUT_PIN",
+    name: "Place output pin"
+  },
   PLACE_SUB_WORKFLOW: {
     id: "PLACE_SUB_WORKFLOW",
     name: "Place sub-workflow",
-    disabled: true
+    menu: WorkflowSelectMenu
   },
   SELECT_MULTI: { id: "SELECT_MULTI", name: "Select multiple" },
   MOVE_MULTI: { id: "MOVE_MULTI", name: "Move selected" },
@@ -32,6 +41,8 @@ const ACTIONS_LIST = [
   ACTIONS.CONNECT,
   ACTIONS.PLACE_FILE_FILTER,
   ACTIONS.PLACE_TASK,
+  ACTIONS.PLACE_INPUT_PIN,
+  ACTIONS.PLACE_OUTPUT_PIN,
   ACTIONS.PLACE_SUB_WORKFLOW,
   ACTIONS.SELECT_MULTI,
   ACTIONS.MOVE_MULTI,

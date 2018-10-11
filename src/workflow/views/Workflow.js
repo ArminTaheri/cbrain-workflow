@@ -107,13 +107,33 @@ const Workflow = ({
           task: selectedTask
         })
     },
+    [ACTIONS.PLACE_INPUT_PIN.id]: {
+      graphPointerDown: position => {
+        const name = prompt("Enter an input pin name");
+        placeNodeType({
+          type: NODE_TYPES.INPUT_PIN,
+          position,
+          input: { name }
+        });
+      }
+    },
+    [ACTIONS.PLACE_OUTPUT_PIN.id]: {
+      graphPointerDown: position => {
+        const name = prompt("Enter an output pin name");
+        placeNodeType({
+          type: NODE_TYPES.OUTPUT_PIN,
+          position,
+          output: { name }
+        });
+      }
+    },
     [ACTIONS.PLACE_SUB_WORKFLOW.id]: {
       graphPointerDown: position =>
         selectedWorkflow &&
         workflows.active !== selectedWorkflow &&
         R.has(selectedWorkflow, workflows.table) &&
         placeNodeType({
-          type: NODE_TYPES.SUB_WORKFLOW,
+          type: NODE_TYPES.WORKFLOW,
           position,
           workflow: R.prop(selectedWorkflow, workflows.table)
         })
@@ -160,7 +180,7 @@ const Workflow = ({
                     setSelectedTask
                   },
                   [ACTIONS.PLACE_SUB_WORKFLOW.id]: {
-                    workflows,
+                    workflows: R.values(workflows.table),
                     selectedWorkflow,
                     setSelectedWorkflow
                   }
