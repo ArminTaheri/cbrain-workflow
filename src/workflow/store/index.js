@@ -25,7 +25,12 @@ import {
   createMoveNodesEpic
 } from "./logic/drag-nodes";
 
-import { removeNode, editNode, workflowReducer } from "./state/workflow";
+import { removeNode, editNode, setWorkflowName } from "./state/workflow";
+import {
+  setActiveWorkflow,
+  addWorkflow,
+  workflowsReducer
+} from "./state/workflows";
 
 import {
   startSelection,
@@ -64,7 +69,7 @@ import {
 
 export const rootReducer = combineReducers({
   taskDescriptors: taskDescriptorsReducer,
-  workflow: workflowReducer,
+  workflows: workflowsReducer,
   connectionDrag: connectionDragReducer,
   selectionBox: selectionBoxReducer,
   selection: selectionReducer,
@@ -72,7 +77,8 @@ export const rootReducer = combineReducers({
   viewbox: viewboxReducer
 });
 
-const getActiveWorkflowGraph = state => state.workflow.graph;
+const getActiveWorkflowGraph = state =>
+  R.path([state.workflows.active, "graph"], state.workflows.table);
 
 export const rootEpic = combineEpics(
   createMakeConnectionEpic(getActiveWorkflowGraph),
@@ -109,6 +115,9 @@ const makeDispatchers = actionBuilders => dispatch =>
   );
 
 export const mapDispatchToProps = makeDispatchers({
+  setActiveWorkflow,
+  addWorkflow,
+  setWorkflowName,
   startConnectionOutput,
   endConnectionInput,
   startConnectionInput,

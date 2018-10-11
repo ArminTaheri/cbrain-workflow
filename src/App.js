@@ -1,3 +1,4 @@
+import * as R from "ramda";
 import React, { Component } from "react";
 import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
@@ -6,6 +7,11 @@ import logger from "redux-logger";
 import "resize-observer-polyfill/dist/ResizeObserver.global";
 import { rootReducer, rootEpic } from "./workflow/store";
 import { placeNodeType } from "./workflow/store/logic/configure-nodes";
+import { createGraph } from "./graph";
+import {
+  addWorkflow,
+  setActiveWorkflow
+} from "./workflow/store/state/workflows";
 import { addTaskDescriptor } from "./workflow/store/state/task-descriptors";
 import { NODE_TYPES } from "./workflow/node";
 import Workflow from "./workflow/views/Workflow";
@@ -24,6 +30,15 @@ class App extends Component {
 
     epicMiddleware.run(rootEpic);
 
+    this.store.dispatch(
+      addWorkflow({
+        name: "Main",
+        graph: createGraph()
+      })
+    );
+    this.store.dispatch(
+      setActiveWorkflow(R.values(this.store.getState().workflows.table)[0].id)
+    );
     this.store.dispatch(
       placeNodeType({
         type: NODE_TYPES.FILE_SOURCE,

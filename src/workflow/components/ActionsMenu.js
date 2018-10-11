@@ -14,6 +14,11 @@ export const ACTIONS = {
     name: "Place tasks",
     menu: TaskSelectMenu
   },
+  PLACE_SUB_WORKFLOW: {
+    id: "PLACE_SUB_WORKFLOW",
+    name: "Place sub-workflow",
+    disabled: true
+  },
   SELECT_MULTI: { id: "SELECT_MULTI", name: "Select multiple" },
   MOVE_MULTI: { id: "MOVE_MULTI", name: "Move selected" },
   PASTE: { id: "PASTE", name: "Paste clipboard" }
@@ -27,6 +32,7 @@ const ACTIONS_LIST = [
   ACTIONS.CONNECT,
   ACTIONS.PLACE_FILE_FILTER,
   ACTIONS.PLACE_TASK,
+  ACTIONS.PLACE_SUB_WORKFLOW,
   ACTIONS.SELECT_MULTI,
   ACTIONS.MOVE_MULTI,
   ACTIONS.PASTE

@@ -7,17 +7,22 @@ import ActionsMenu, { ACTIONS } from "../components/ActionsMenu";
 import MultiSelectOperations, {
   MULTI_SELECT_OPERATIONS
 } from "../components/MultiSelectOperations";
-import GraphLayer from "../components/graph/GraphLayer";
+import WorkflowTabs from "../components/WorkflowTabs";
 import { mapDispatchToProps } from "../store";
 import { NODE_TYPES } from "../node";
 
 const Workflow = ({
-  workflow,
+  workflows = { active: null, table: {} },
+  setActiveWorkflow,
+  addWorkflow,
+  setWorkflowName,
   activeAction,
   setActiveAction,
   taskDescriptors = [],
   selectedTask = null,
   setSelectedTask,
+  selectedWorkflow = null,
+  setSelectedWorkflow,
   startConnectionOutput,
   endConnectionInput,
   startConnectionInput,
@@ -102,6 +107,17 @@ const Workflow = ({
           task: selectedTask
         })
     },
+    [ACTIONS.PLACE_SUB_WORKFLOW.id]: {
+      graphPointerDown: position =>
+        selectedWorkflow &&
+        workflows.active !== selectedWorkflow &&
+        R.has(selectedWorkflow, workflows.table) &&
+        placeNodeType({
+          type: NODE_TYPES.SUB_WORKFLOW,
+          position,
+          workflow: R.prop(selectedWorkflow, workflows.table)
+        })
+    },
     [ACTIONS.PLACE_FILE_FILTER.id]: {
       graphPointerDown: position =>
         placeNodeType({
@@ -142,6 +158,11 @@ const Workflow = ({
                     tasks: taskDescriptors,
                     selectedTask,
                     setSelectedTask
+                  },
+                  [ACTIONS.PLACE_SUB_WORKFLOW.id]: {
+                    workflows,
+                    selectedWorkflow,
+                    setSelectedWorkflow
                   }
                 }}
               />
@@ -169,10 +190,14 @@ const Workflow = ({
             </Col>
           </Row>
         </Col>
+
         {/* TODO: Remove hardcoded height */}
         <Col md={10} style={{ height: "800px" }}>
-          <GraphLayer
-            graph={workflow.graph}
+          <WorkflowTabs
+            workflows={workflows}
+            setActiveWorkflow={setActiveWorkflow}
+            addWorkflow={addWorkflow}
+            setWorkflowName={setWorkflowName}
             {...graphLayerProps}
             {...handlers}
           />
@@ -185,6 +210,7 @@ const Workflow = ({
 export default compose(
   withState("activeAction", "setActiveAction", ACTIONS.NONE),
   withState("selectedTask", "setSelectedTask", null),
+  withState("selectedWorkflow", "setSelectedWorkflow", null),
   connect(
     R.identity,
     mapDispatchToProps

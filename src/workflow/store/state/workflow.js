@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 import { createAction } from "redux-actions";
-import { createGraphReducer } from "../../../graph";
+import { createGraph, createGraphReducer } from "../../../graph";
 
 export const ADD_NODE = "ADD_NODE";
 export const addNode = createAction(ADD_NODE);
@@ -47,7 +47,10 @@ const workflowGraphReducer = createGraphReducer(
   PATCH_SUBRGAPH
 );
 
+export const createWorkflow = name => ({ name, graph: createGraph() });
+
 export const workflowReducer = combineReducers({
+  id: (state = "") => state,
   name: nameReducer,
   graph: workflowGraphReducer
 });
