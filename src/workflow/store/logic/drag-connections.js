@@ -114,8 +114,11 @@ export const createMakeConnectionEpic = fromState => (actions$, state$) => {
           ["parentID", "outputOffset", "childID", "inputOffset"],
           [graphConnection, connection]
         );
+
         return (
-          graphConnection.childID === connection.childID && !R.equals(c1, c2)
+          graphConnection.childID === connection.childID &&
+          R.equals(graphConnection.inputOffset, connection.inputOffset) &&
+          !R.equals(c1, c2)
         );
       };
       const removeConflicts = R.values(fromState(state).connections)

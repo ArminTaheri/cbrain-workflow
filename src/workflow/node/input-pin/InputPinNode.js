@@ -42,7 +42,7 @@ const InputPinNode = ({
 
 InputPinNode.propTypes = {
   node: NodeType.isRequired,
-  renderOverlay: PropTypes.element,
+  renderOverlay: PropTypes.any,
   position: PointType.isRequired,
   input: PropTypes.object
 };

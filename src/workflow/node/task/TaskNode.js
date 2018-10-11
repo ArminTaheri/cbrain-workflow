@@ -36,7 +36,7 @@ const TaskNode = ({ node, renderOverlay, scaleX, scaleY, position, task }) => {
 
 TaskNode.propTypes = {
   node: NodeType.isRequired,
-  renderOverlay: PropTypes.element,
+  renderOverlay: PropTypes.any,
   position: PointType.isRequired,
   task: TaskType.isRequired
 };

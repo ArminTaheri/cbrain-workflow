@@ -42,7 +42,7 @@ const WorkflowNode = ({
 
 WorkflowNode.propTypes = {
   node: NodeType.isRequired,
-  renderOverlay: PropTypes.element,
+  renderOverlay: PropTypes.any,
   position: PointType.isRequired,
   workflow: PropTypes.object.isRequired
 };

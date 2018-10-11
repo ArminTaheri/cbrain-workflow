@@ -42,7 +42,7 @@ const OutputPinNode = ({
 
 OutputPinNode.propTypes = {
   node: NodeType.isRequired,
-  renderOverlay: PropTypes.element,
+  renderOverlay: PropTypes.any,
   position: PointType.isRequired,
   output: PropTypes.object
 };
